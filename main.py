@@ -103,51 +103,69 @@ if sig is not None and not rec_data.empty:
     # Inisialisasi semua session state yang diperlukan
     if "selected_genre" not in st.session_state:
         st.session_state.selected_genre = None
-    if "recommendation_page" not in st.session_state:
-        st.session_state.recommendation_page = 1  # Halaman 1 = peringkat 1-10, Halaman 2 = peringkat 11-20
+    if "current_page" not in st.session_state:
+        st.session_state.current_page = 1  # Melacak halaman aktif (1, 2, 3, dst.)
 
-    # Membuat dua kolom berdampingan untuk tombol utama
-    col1, col2 = st.columns([1, 1])
+    # Tombol Utama: Cari Rekomendasi Awal
+    if st.button("🔮 Cari Rekomendasi", use_container_width=True):
+        st.session_state.current_page = 1  # Reset ke halaman 1 saat cari anime baru
+        st.session_state.selected_genre = None
+        st.session_state.search_done = True
+        st.session_state.current_anime = search_query
 
-    # Tombol 1: Cari Rekomendasi Awal (Reset ke halaman 1)
-    with col1:
-        if st.button("🔮 Cari Rekomendasi", use_container_width=True):
-            st.session_state.recommendation_page = 1
-            st.session_state.selected_genre = None
-            st.session_state.search_done = True
-            st.session_state.current_anime = search_query
-
-    # Tombol 2: Tampilkan 10 Anime Berbeda Lainnya (Pindah ke halaman 2)
-    with col2:
-        # Tombol ini hanya aktif/muncul jika user sudah pernah menekan tombol pertama sebelumnya
-        if st.session_state.get("search_done", False) and search_query == st.session_state.get("current_anime"):
-            tombol_teks = "🔄 Tampilkan 10 Lainnya" if st.session_state.recommendation_page == 1 else "↩️ Kembali ke 10 Awal"
-            if st.button(tombol_teks, use_container_width=True):
-                # Tukar halaman antara 1 dan 2
-                st.session_state.recommendation_page = 2 if st.session_state.recommendation_page == 1 else 1
-                st.session_state.selected_genre = None # Reset filter genre saat ganti batch
-
-    # Logika eksekusi rekomendasi berdasarkan halaman aktif
+    # Logika eksekusi & navigasi rekomendasi
     if st.session_state.get("search_done", False):
-        # Selalu hitung skor kemiripan dari anime aktif
         active_anime = st.session_state.current_anime
         idx = rec_indices[active_anime]
         
+        # Hitung seluruh skor kemiripan
         sig_score = list(enumerate(sig[idx]))
         sig_score = sorted(sig_score, key=lambda x: x[1], reverse=True)
         
-        # Tentukan slicing index berdasarkan halaman
-        if st.session_state.recommendation_page == 1:
-            start_rank, end_rank = 1, 11   # Peringkat 1 sampai 10 teratas
-            nomor_urut = range(1, 11)
-            label_sukses = f"Berikut adalah 10 rekomendasi anime teratas bagi penonton **{active_anime}**:"
-        else:
-            start_rank, end_rank = 11, 21  # Peringkat 11 sampai 20 (10 anime berbeda lainnya)
-            nomor_urut = range(11, 21)
-            label_sukses = f"Berikut adalah 10 rekomendasi alternatif berikutnya (Peringkat 11-20) bagi penonton **{active_anime}**:"
+        # --- SISTEM NAVIGASI PAGINASI (< Halaman >) ---
+        st.write("")
+        # Membuat 3 kolom dengan proporsi: tombol kiri (kecil), teks tengah (lebar), tombol kanan (kecil)
+        nav_col1, nav_col2, nav_col3 = st.columns([1, 3, 1])
+        
+        with nav_col1:
+            # Tombol Mundur (<) hanya aktif jika posisi halaman > 1
+            if st.session_state.current_page > 1:
+                if st.button("⬅️ `<`", use_container_width=True):
+                    st.session_state.current_page -= 1
+                    st.session_state.selected_genre = None # Reset filter genre saat pindah halaman
+                    st.rerun()
+            else:
+                st.button("⬅️ `<`", disabled=True, use_container_width=True)
+                
+        with nav_col2:
+            # Menghitung rentang peringkat yang sedang ditampilkan
+            current_start = ((st.session_state.current_page - 1) * 10) + 1
+            current_end = st.session_state.current_page * 10
+            st.markdown(f"<h5 style='text-align: center; margin-top: 5px;'>Halaman {st.session_state.current_page} (Peringkat {current_start} - {current_end})</h5>", unsafe_allow_html=True)
             
-        sig_score = sig_score[start_rank:end_rank]
-        anime_indices = [i[0] for i in sig_score]
+        with nav_col3:
+            # Batasi maksimum halaman (misal total rekomendasi hingga peringkat 50 / 5 halaman)
+            max_pilihan_anime = len(sig_score) - 1
+            max_halaman = min(5, max_pilihan_anime // 10) 
+            
+            # Tombol Maju (>) hanya aktif jika belum mencapai batas max_halaman
+            if st.session_state.current_page < max_halaman:
+                if st.button("`>` ➡️", use_container_width=True):
+                    st.session_state.current_page += 1
+                    st.session_state.selected_genre = None # Reset filter genre saat pindah halaman
+                    st.rerun()
+            else:
+                st.button("`>` ➡️", disabled=True, use_container_width=True)
+        # -----------------------------------------------
+
+        # Menghitung slicing indeks berdasarkan halaman aktif di session state
+        start_rank = ((st.session_state.current_page - 1) * 10) + 1
+        end_rank = (st.session_state.current_page * 10) + 1
+        nomor_urut = range(start_rank, end_rank)
+        
+        # Ekstrak data rekomendasi berdasarkan potongan rentang halaman
+        page_sig_score = sig_score[start_rank:end_rank]
+        anime_indices = [i[0] for i in page_sig_score]
         
         # Menyusun DataFrame hasil untuk ditampilkan
         rec_dic = {
@@ -160,7 +178,7 @@ if sig is not None and not rec_data.empty:
         st.session_state.df_result = pd.DataFrame(data=rec_dic).set_index("No")
         
         # Tampilkan Pesan Sukses & Tabel Utama
-        st.success(label_sukses)
+        st.success(f"Menampilkan 10 rekomendasi anime sejenis untuk **{active_anime}**:")
         st.dataframe(
             st.session_state.df_result, 
             use_container_width=True,
@@ -171,7 +189,7 @@ if sig is not None and not rec_data.empty:
             }
         )
         
-        # --- Bagian Eksplorasi Genre (Tetap Sinkron Otomatis dengan Batch yang Aktif) ---
+        # --- Bagian Eksplorasi Genre (Sinkron Otomatis dengan Halaman Aktif) ---
         st.write("---")
         st.subheader("🔍 Eksplorasi Genre Lebih Lanjut")
         st.write("Klik salah satu genre di bawah ini untuk melihat anime sejenis dari daftar di atas:")

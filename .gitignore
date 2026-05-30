@@ -1,0 +1,4 @@
+anime-data/
+__pycache__/
+env/
+.env

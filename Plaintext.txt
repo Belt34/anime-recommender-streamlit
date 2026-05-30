@@ -1,0 +1,5 @@
+anime-recommender/
+├── anime-data/
+│   ├── anime.csv
+│   └── rating.csv
+└── main.py

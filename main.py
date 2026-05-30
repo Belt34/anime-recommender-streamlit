@@ -11,48 +11,69 @@ from sklearn.metrics.pairwise import sigmoid_kernel
 warnings.filterwarnings('ignore')
 
 # ==========================================
-# 1. PENANGANAN DATASET (KAGGLE / LOKAL)
+# 1. DOWNLOAD AUTOMATIS DARI KAGGLE
 # ==========================================
-# Catatan: Di Streamlit/VS Code lokal, sebaiknya dataset sudah di-ekstrak 
-# di dalam folder proyek kamu agar tidak perlu download setiap saat.
+def download_dataset_from_kaggle():
+    path_anime = "anime-data/anime.csv"
+    path_rating = "anime-data/rating.csv"
+    
+    # Jika file csv belum ada, lakukan download otomatis
+    if not os.path.exists(path_anime) or not os.path.exists(path_rating):
+        print("Dataset tidak ditemukan secara lokal. Memulai download dari Kaggle...")
+        
+        # Mengatur kredensial Kaggle secara langsung via code (Sangat berguna untuk Streamlit)
+        os.environ['KAGGLE_USERNAME'] = "username_kaggle_kamu" # <-- GANTI INI
+        os.environ['KAGGLE_KEY'] = "api_key_kaggle_kamu"       # <-- Ganti INI
+        
+        try:
+            from kaggle.api.kaggle_api_extended import KaggleApi
+            api = KaggleApi()
+            api.authenticate()
+            
+            # Download zip dataset dari Kaggle ke folder anime-data
+            print("Downloading files...")
+            api.dataset_download_files('CooperUnion/anime-recommendations-database', path='anime-data', unzip=True)
+            print("Download dan Ekstrak selesai!")
+            
+        except Exception as e:
+            print(f"Gagal mendownload dataset: {e}")
+            print("Pastikan Username dan API Key Kaggle kamu sudah benar.")
 
-zip_path = 'anime-data/anime-recommendations-database.zip'
-extract_path = 'anime-data/'
+# Jalankan fungsi download di awal program
+download_dataset_from_kaggle()
 
-# Pengecekan otomatis jika file belum di-ekstrak
-if not os.path.exists(os.path.join(extract_path, 'anime.csv')):
-    if os.path.exists(zip_path):
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_path)
-        print("Dataset berhasil diekstrak!")
-    else:
-        print("Peringatan: File zip dataset tidak ditemukan di folder 'anime-data/'.")
-
-# Memuat Data (Path disesuaikan ke folder lokal)
+# Memuat Data setelah dipastikan ter-download
 try:
     anime = pd.read_csv("anime-data/anime.csv")
     rating = pd.read_csv("anime-data/rating.csv")
+    print("Dataset berhasil dimuat ke dalam program!")
 except FileNotFoundError:
-    print("Error: File anime.csv atau rating.csv tidak ditemukan. Pastikan folder 'anime-data' sudah ada.")
+    print("Error: Program tidak dapat melanjutkan karena dataset tidak ada.")
     anime = pd.DataFrame()
     rating = pd.DataFrame()
 
 # ==========================================
 # 2. PRA-PEMROSESAN & MODELLING
 # ==========================================
+sig = None
+rec_indices = None
+rec_data = pd.DataFrame()
+
 if not anime.empty and not rating.empty:
-    # Menggabungkan Dataset
     fulldata = pd.merge(anime, rating, on="anime_id", suffixes=[None, "_user"])
     fulldata = fulldata.rename(columns={"rating_user": "user_rating"})
 
-    # Ekstrak genre unik untuk TF-IDF
     rec_data = fulldata.copy()
     rec_data.drop_duplicates(subset="name", keep="first", inplace=True)
     rec_data.reset_index(drop=True, inplace=True)
 
+    # -------------------------------------------------------------
+    # PERBAIKAN: Mengisi genre yang kosong (NaN) dengan string kosong ''
+    # -------------------------------------------------------------
+    rec_data["genre"] = rec_data["genre"].fillna("")
+
     genres = rec_data["genre"].str.split(", |, |,").astype(str)
 
-    # TF-IDF Vectorization
     tfv = TfidfVectorizer(
         min_df=3, 
         max_features=None, 
@@ -64,22 +85,24 @@ if not anime.empty and not rating.empty:
     )
     tfv_matrix = tfv.fit_transform(genres)
 
-    # Membaca Sigmoid Kernel
     sig = sigmoid_kernel(tfv_matrix, tfv_matrix)
     rec_indices = pd.Series(rec_data.index, index=rec_data["name"]).drop_duplicates()
-
 # ==========================================
-# 3. FUNGSI REKOMENDASI (VERSI TERMINAL/VS CODE)
+# 3. FUNGSI REKOMENDASI
 # ==========================================
 def give_recommendation(search_query, sig=sig):
+    if sig is None or rec_data.empty:
+        print("Error: Model tidak siap karena data kosong.")
+        return None
+        
     matching_titles = rec_data[rec_data['name'].str.contains(search_query, case=False, na=False)]['name'].unique()
     
     if len(matching_titles) == 0:
-        print(f"No anime found matching '{search_query}'. Please try a different search term.")
+        print(f"No anime found matching '{search_query}'.")
         return None
     elif len(matching_titles) > 1:
         print(f"Multiple anime found matching '{search_query}':")
-        for title in matching_titles[:10]: # Limbat 10 pilihan agar tidak penuh
+        for title in matching_titles[:10]:
             print(f"- {title}")
         return None
     else:
@@ -99,14 +122,10 @@ def give_recommendation(search_query, sig=sig):
         dataframe.set_index("No", inplace=True)
         return dataframe
 
-# ==========================================
-# 4. CARA MENJALANKAN DI VS CODE
-# ==========================================
 if __name__ == "__main__":
-    # Ganti dengan nama anime yang ingin kamu uji di terminal VS Code
-    query = "Cyborg 009" 
-    print(f"Mencari rekomendasi untuk: {query}\n")
-    
+    query = "boku"  # Contoh query, bisa diganti dengan input dari pengguna
     hasil = give_recommendation(query)
     if hasil is not None:
+        print(f"\nRekomendasi untuk penonton {query}:\n")
         print(hasil)
+        

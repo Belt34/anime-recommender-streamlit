@@ -201,3 +201,8 @@ if sig is not None and not rec_data.empty:
                 column_config={
                     "Judul Anime": st.column_config.TextColumn("Judul Anime", width="large"),
                     "Genre": st.column_config.TextColumn("Genre", width="large"),
+                    "Rating": st.column_config.NumberColumn("Rating", width="small")
+                }
+            )
+else:
+    st.info("Sedang memuat data, silakan tunggu sebentar...")

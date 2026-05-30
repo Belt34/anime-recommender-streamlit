@@ -133,7 +133,17 @@ if sig is not None and not rec_data.empty:
     # Jika pencarian sudah dilakukan, tampilkan hasil dan menu eksplorasi genre
     if st.session_state.get("search_done", False):
         st.success(f"Berikut adalah 10 rekomendasi anime bagi penonton **{st.session_state.current_anime}**:")
-        st.dataframe(st.session_state.df_result, use_container_width=True)
+        
+        # --- TABEL UTAMA DENGAN COLUMN CONFIG AGAR KANDUNGANNYA TERLIHAT ---
+        st.dataframe(
+            st.session_state.df_result, 
+            use_container_width=True,
+            column_config={
+                "Judul Anime": st.column_config.TextColumn("Judul Anime", width="large"),
+                "Genre": st.column_config.TextColumn("Genre", width="large"),
+                "Rating": st.column_config.NumberColumn("Rating", width="small")
+            }
+        )
         
         st.write("---")
         st.subheader("🔍 Eksplorasi Genre Lebih Lanjut")
@@ -166,8 +176,16 @@ if sig is not None and not rec_data.empty:
             filter_display.insert(0, 'No', range(1, len(filter_display) + 1))
             filter_display.set_index('No', inplace=True)
             
-            # Batasi tampilan maksimal 15 anime terpopuler di genre tersebut agar rapi
-            st.dataframe(filter_display.head(15), use_container_width=True)
+            # --- TABEL FILTER GENRE DENGAN COLUMN CONFIG AGAR TIDAK TERPOTONG ---
+            st.dataframe(
+                filter_display.head(15), 
+                use_container_width=True,
+                column_config={
+                    "Judul Anime": st.column_config.TextColumn("Judul Anime", width="large"),
+                    "Genre": st.column_config.TextColumn("Genre", width="large"),
+                    "Rating": st.column_config.NumberColumn("Rating", width="small")
+                }
+            )
 
 else:
     st.info("Sedang memuat data, silakan tunggu sebentar...")

@@ -16,8 +16,9 @@ st.set_page_config(page_title="Anime Recommender System", page_icon="🎬", layo
 # ==========================================
 @st.cache_resource
 def download_dataset_from_kaggle():
-    path_anime = "anime-data/anime.csv"
-    zip_target = "anime-data/anime-recommendations-database.zip"
+    # Menggunakan direktori saat ini (./) agar tidak diblokir oleh sistem keamanan server Linux
+    path_anime = "anime.csv"
+    zip_target = "anime-recommendations-database.zip"
     
     if not os.path.exists(path_anime):
         with st.spinner("Sedang mengunduh dataset dari Kaggle (Proses ini hanya berjalan sekali)..."):
@@ -25,19 +26,17 @@ def download_dataset_from_kaggle():
             os.environ['KAGGLE_KEY'] = st.secrets["KAGGLE_KEY"]
             
             try:
-                os.makedirs("anime-data", exist_ok=True)
                 from kaggle.api.kaggle_api_extended import KaggleApi
                 api = KaggleApi()
                 api.authenticate()
                 
-                # 1. Download file zip asli dari Kaggle (unzip=False agar stabil di cloud)
-                api.dataset_download_files('CooperUnion/anime-recommendations-database', path='anime-data', unzip=False)
+                # Download langsung ke root folder aplikasi agar lolos sensor izin server
+                api.dataset_download_files('CooperUnion/anime-recommendations-database', path='.', unzip=False)
                 
-                # 2. Paksa ekstrak manual menggunakan modul zipfile Python (Pasti Berhasil)
                 if os.path.exists(zip_target):
                     with zipfile.ZipFile(zip_target, 'r') as zip_ref:
-                        zip_ref.extractall("anime-data/")
-                    print("Ekstrak manual berhasil!")
+                        zip_ref.extractall(".")
+                    print("Ekstrak manual di root berhasil!")
                     
             except Exception as e:
                 st.error(f"Gagal mendownload dataset: {e}")
@@ -48,7 +47,8 @@ download_dataset_from_kaggle()
 @st.cache_data
 def load_and_process_data():
     try:
-        anime = pd.read_csv("anime-data/anime.csv")
+        # Membaca dari lokasi root baru
+        anime = pd.read_csv("anime.csv")
         
         rec_data = anime.dropna(subset=['name']).copy()
         rec_data.drop_duplicates(subset="name", keep="first", inplace=True)

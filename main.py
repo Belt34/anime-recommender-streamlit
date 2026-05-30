@@ -23,8 +23,9 @@ def download_dataset_from_kaggle():
     if not os.path.exists(path_anime) or not os.path.exists(path_rating):
         with st.spinner("Sedang mengunduh dataset dari Kaggle (Proses ini hanya berjalan sekali)..."):
             # ISI DENGAN API KEY KAGGLE KAMU SEPERTI SEBELUMNYA
-            os.environ['KAGGLE_USERNAME'] = "username_kaggle_kamu" 
-            os.environ['KAGGLE_KEY'] = "api_key_kaggle_kamu"       
+            # GANTI DUA BARIS YANG LAMA DENGAN INI:
+            os.environ['KAGGLE_USERNAME'] = st.secrets["KAGGLE_USERNAME"]
+            os.environ['KAGGLE_KEY'] = st.secrets["KAGGLE_KEY"]     
             
             try:
                 from kaggle.api.kaggle_api_extended import KaggleApi

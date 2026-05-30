@@ -91,7 +91,7 @@ def load_and_process_data():
 # 3. TAMPILAN ANTARMUKA WEB (UI)
 # ==========================================
 st.title("🎬 Anime Recommendation System")
-st.write("Dapatkan 10 rekomendasi anime terbaik berdasarkan kemiripan genre!")
+st.write("Dapatkan rekomendasi anime terbaik berdasarkan kemiripan genre!")
 
 # Memuat data hasil optimasi
 rec_data, sig, rec_indices = load_and_process_data()
@@ -100,41 +100,67 @@ if sig is not None and not rec_data.empty:
     list_anime = rec_data['name'].unique()
     search_query = st.selectbox("Pilih atau ketik nama anime yang kamu sukai:", list_anime)
     
-    # Inisialisasi state untuk menyimpan genre yang dipilih via tombol
+    # Inisialisasi semua session state yang diperlukan
     if "selected_genre" not in st.session_state:
         st.session_state.selected_genre = None
+    if "recommendation_page" not in st.session_state:
+        st.session_state.recommendation_page = 1  # Halaman 1 = peringkat 1-10, Halaman 2 = peringkat 11-20
 
-    if st.button("Cari Rekomendasi"):
-        # Reset filter genre setiap kali mencari anime baru
-        st.session_state.selected_genre = None
+    # Membuat dua kolom berdampingan untuk tombol utama
+    col1, col2 = st.columns([1, 1])
+
+    # Tombol 1: Cari Rekomendasi Awal (Reset ke halaman 1)
+    with col1:
+        if st.button("🔮 Cari Rekomendasi", use_container_width=True):
+            st.session_state.recommendation_page = 1
+            st.session_state.selected_genre = None
+            st.session_state.search_done = True
+            st.session_state.current_anime = search_query
+
+    # Tombol 2: Tampilkan 10 Anime Berbeda Lainnya (Pindah ke halaman 2)
+    with col2:
+        # Tombol ini hanya aktif/muncul jika user sudah pernah menekan tombol pertama sebelumnya
+        if st.session_state.get("search_done", False) and search_query == st.session_state.get("current_anime"):
+            tombol_teks = "🔄 Tampilkan 10 Lainnya" if st.session_state.recommendation_page == 1 else "↩️ Kembali ke 10 Awal"
+            if st.button(tombol_teks, use_container_width=True):
+                # Tukar halaman antara 1 dan 2
+                st.session_state.recommendation_page = 2 if st.session_state.recommendation_page == 1 else 1
+                st.session_state.selected_genre = None # Reset filter genre saat ganti batch
+
+    # Logika eksekusi rekomendasi berdasarkan halaman aktif
+    if st.session_state.get("search_done", False):
+        # Selalu hitung skor kemiripan dari anime aktif
+        active_anime = st.session_state.current_anime
+        idx = rec_indices[active_anime]
         
-        idx = rec_indices[search_query]
-        
-        # Hitung skor kemiripan
         sig_score = list(enumerate(sig[idx]))
         sig_score = sorted(sig_score, key=lambda x: x[1], reverse=True)
-        sig_score = sig_score[1:11]  # Ambil peringkat 2 sampai 11
         
+        # Tentukan slicing index berdasarkan halaman
+        if st.session_state.recommendation_page == 1:
+            start_rank, end_rank = 1, 11   # Peringkat 1 sampai 10 teratas
+            nomor_urut = range(1, 11)
+            label_sukses = f"Berikut adalah 10 rekomendasi anime teratas bagi penonton **{active_anime}**:"
+        else:
+            start_rank, end_rank = 11, 21  # Peringkat 11 sampai 20 (10 anime berbeda lainnya)
+            nomor_urut = range(11, 21)
+            label_sukses = f"Berikut adalah 10 rekomendasi alternatif berikutnya (Peringkat 11-20) bagi penonton **{active_anime}**:"
+            
+        sig_score = sig_score[start_rank:end_rank]
         anime_indices = [i[0] for i in sig_score]
         
         # Menyusun DataFrame hasil untuk ditampilkan
         rec_dic = {
-            "No": range(1, 11),
+            "No": nomor_urut,
             "Judul Anime": rec_data["name"].iloc[anime_indices].values,
             "Genre": rec_data["genre"].iloc[anime_indices].values,
             "Rating": rec_data["rating"].iloc[anime_indices].values
         }
         
-        # Simpan hasil rekomendasi ke session state agar tidak hilang saat tombol genre diklik
         st.session_state.df_result = pd.DataFrame(data=rec_dic).set_index("No")
-        st.session_state.search_done = True
-        st.session_state.current_anime = search_query
-
-    # Jika pencarian sudah dilakukan, tampilkan hasil dan menu eksplorasi genre
-    if st.session_state.get("search_done", False):
-        st.success(f"Berikut adalah 10 rekomendasi anime bagi penonton **{st.session_state.current_anime}**:")
         
-        # --- TABEL UTAMA DENGAN COLUMN CONFIG AGAR KANDUNGANNYA TERLIHAT ---
+        # Tampilkan Pesan Sukses & Tabel Utama
+        st.success(label_sukses)
         st.dataframe(
             st.session_state.df_result, 
             use_container_width=True,
@@ -145,47 +171,33 @@ if sig is not None and not rec_data.empty:
             }
         )
         
+        # --- Bagian Eksplorasi Genre (Tetap Sinkron Otomatis dengan Batch yang Aktif) ---
         st.write("---")
         st.subheader("🔍 Eksplorasi Genre Lebih Lanjut")
-        st.write("Klik salah satu genre di bawah ini untuk melihat anime sejenis dari daftar rekomendasi:")
+        st.write("Klik salah satu genre di bawah ini untuk melihat anime sejenis dari daftar di atas:")
         
-        # Ambil semua genre unik dari 10 anime hasil rekomendasi tersebut
         all_genres = set()
         for g_str in st.session_state.df_result["Genre"]:
             genres_list = [g.strip() for g in g_str.split(",")]
             all_genres.update(genres_list)
         
-        # Urutkan nama genre secara alfabetis
         sorted_genres = sorted(list(all_genres))
-        
-        # Membuat tombol pill horizontal yang bisa diklik
         genre_click = st.pills("Pilih Genre:", sorted_genres, selection_mode="single")
         
-        # Jika ada genre yang diklik, lakukan filter dari seluruh dataset rec_data
         if genre_click:
             st.session_state.selected_genre = genre_click
-            
-            # Filter rec_data (5000 data terpopuler) yang mengandung genre terpilih
             filtered_anime = rec_data[rec_data['genre'].str.contains(genre_click, case=False, na=False)]
             
             st.write(f"### 📋 Daftar Anime dengan Genre: **{genre_click}**")
             
-            # Format tampilan tabel filter
             filter_display = filtered_anime[['name', 'genre', 'rating']].copy()
             filter_display.columns = ['Judul Anime', 'Genre', 'Rating']
             filter_display.insert(0, 'No', range(1, len(filter_display) + 1))
             filter_display.set_index('No', inplace=True)
             
-            # --- TABEL FILTER GENRE DENGAN COLUMN CONFIG AGAR TIDAK TERPOTONG ---
             st.dataframe(
                 filter_display.head(15), 
                 use_container_width=True,
                 column_config={
                     "Judul Anime": st.column_config.TextColumn("Judul Anime", width="large"),
                     "Genre": st.column_config.TextColumn("Genre", width="large"),
-                    "Rating": st.column_config.NumberColumn("Rating", width="small")
-                }
-            )
-
-else:
-    st.info("Sedang memuat data, silakan tunggu sebentar...")

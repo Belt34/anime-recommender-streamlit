@@ -100,7 +100,14 @@ if sig is not None and not rec_data.empty:
     list_anime = rec_data['name'].unique()
     search_query = st.selectbox("Pilih atau ketik nama anime yang kamu sukai:", list_anime)
     
+    # Inisialisasi state untuk menyimpan genre yang dipilih via tombol
+    if "selected_genre" not in st.session_state:
+        st.session_state.selected_genre = None
+
     if st.button("Cari Rekomendasi"):
+        # Reset filter genre setiap kali mencari anime baru
+        st.session_state.selected_genre = None
+        
         idx = rec_indices[search_query]
         
         # Hitung skor kemiripan
@@ -118,10 +125,49 @@ if sig is not None and not rec_data.empty:
             "Rating": rec_data["rating"].iloc[anime_indices].values
         }
         
-        dataframe = pd.DataFrame(data=rec_dic)
-        dataframe.set_index("No", inplace=True)
+        # Simpan hasil rekomendasi ke session state agar tidak hilang saat tombol genre diklik
+        st.session_state.df_result = pd.DataFrame(data=rec_dic).set_index("No")
+        st.session_state.search_done = True
+        st.session_state.current_anime = search_query
+
+    # Jika pencarian sudah dilakukan, tampilkan hasil dan menu eksplorasi genre
+    if st.session_state.get("search_done", False):
+        st.success(f"Berikut adalah 10 rekomendasi anime bagi penonton **{st.session_state.current_anime}**:")
+        st.dataframe(st.session_state.df_result, use_container_width=True)
         
-        st.success(f"Berikut adalah 10 rekomendasi anime bagi penonton **{search_query}**:")
-        st.dataframe(dataframe, use_container_width=True)
+        st.write("---")
+        st.subheader("🔍 Eksplorasi Genre Lebih Lanjut")
+        st.write("Klik salah satu genre di bawah ini untuk melihat anime sejenis dari daftar rekomendasi:")
+        
+        # Ambil semua genre unik dari 10 anime hasil rekomendasi tersebut
+        all_genres = set()
+        for g_str in st.session_state.df_result["Genre"]:
+            genres_list = [g.strip() for g in g_str.split(",")]
+            all_genres.update(genres_list)
+        
+        # Urutkan nama genre secara alfabetis
+        sorted_genres = sorted(list(all_genres))
+        
+        # Membuat tombol pill horizontal yang bisa diklik
+        genre_click = st.pills("Pilih Genre:", sorted_genres, selection_mode="single")
+        
+        # Jika ada genre yang diklik, lakukan filter dari seluruh dataset rec_data
+        if genre_click:
+            st.session_state.selected_genre = genre_click
+            
+            # Filter rec_data (5000 data terpopuler) yang mengandung genre terpilih
+            filtered_anime = rec_data[rec_data['genre'].str.contains(genre_click, case=False, na=False)]
+            
+            st.write(f"### 📋 Daftar Anime dengan Genre: **{genre_click}**")
+            
+            # Format tampilan tabel filter
+            filter_display = filtered_anime[['name', 'genre', 'rating']].copy()
+            filter_display.columns = ['Judul Anime', 'Genre', 'Rating']
+            filter_display.insert(0, 'No', range(1, len(filter_display) + 1))
+            filter_display.set_index('No', inplace=True)
+            
+            # Batasi tampilan maksimal 15 anime terpopuler di genre tersebut agar rapi
+            st.dataframe(filter_display.head(15), use_container_width=True)
+
 else:
     st.info("Sedang memuat data, silakan tunggu sebentar...")

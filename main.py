@@ -21,20 +21,21 @@ def download_dataset_from_kaggle():
     
     if not os.path.exists(path_anime):
         with st.spinner("Sedang mengunduh dataset dari Kaggle (Proses ini hanya berjalan sekali)..."):
+            # Membaca kredensial dari Streamlit Secrets
             os.environ['KAGGLE_USERNAME'] = st.secrets["KAGGLE_USERNAME"]
             os.environ['KAGGLE_KEY'] = st.secrets["KAGGLE_KEY"]
             
             try:
+                # Membuat folder secara manual untuk memastikan direktori tersedia
+                os.makedirs("anime-data", exist_ok=True)
+                
                 from kaggle.api.kaggle_api_extended import KaggleApi
                 api = KaggleApi()
                 api.authenticate()
-                # Cukup download anime.csv saja untuk menghemat waktu dan kuota server
-                api.dataset_download_file('CooperUnion/anime-recommendations-database', 'anime.csv', path='anime-data')
                 
-                # Jika terdownload sebagai zip individual, kita ekstrak
-                if os.path.exists("anime-data/anime.csv.zip"):
-                    with zipfile.ZipFile("anime-data/anime.csv.zip", 'r') as zip_ref:
-                        zip_ref.extractall("anime-data/")
+                # Mendownload seluruh paket dataset (lebih aman daripada download file tunggal)
+                api.dataset_download_files('CooperUnion/anime-recommendations-database', path='anime-data', unzip=True)
+                print("Download dan Ekstrak dari Kaggle Berhasil!")
             except Exception as e:
                 st.error(f"Gagal mendownload dataset: {e}")
 

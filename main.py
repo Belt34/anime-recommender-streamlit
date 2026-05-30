@@ -14,7 +14,7 @@ st.set_page_config(page_title="Anime Recommender System", page_icon="🎬", layo
 def load_and_process_data():
     try:
         # Menembak langsung file anime.csv publik yang super stabil lewat internet
-        url_anime = "https://raw.githubusercontent.com/patelmauli/Anime-Content-Based-Recommendation-System/main/anime.csv"
+      url_anime = "https://raw.githubusercontent.com/Mayank-Tyagi/Anime-Recommendation-System/master/anime.csv"
         
         with st.spinner("Sedang menghubungkan ke basis data anime..."):
             anime = pd.read_csv(url_anime)

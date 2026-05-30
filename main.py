@@ -12,7 +12,7 @@ warnings.filterwarnings('ignore')
 st.set_page_config(page_title="Anime Recommender System", page_icon="🎬", layout="centered")
 
 # ==========================================
-# 1. DOWNLOAD OTOMATIS DARI KAGGLE (PERBAIKAN)
+# 1. DOWNLOAD OTOMATIS DARI KAGGLE
 # ==========================================
 @st.cache_resource
 def download_dataset_from_kaggle():
@@ -30,7 +30,7 @@ def download_dataset_from_kaggle():
                 api = KaggleApi()
                 api.authenticate()
                 
-                # 1. Download file zip asli dari Kaggle (unzip diatur False agar stabil)
+                # 1. Download file zip asli dari Kaggle (unzip=False agar stabil di cloud)
                 api.dataset_download_files('CooperUnion/anime-recommendations-database', path='anime-data', unzip=False)
                 
                 # 2. Paksa ekstrak manual menggunakan modul zipfile Python (Pasti Berhasil)

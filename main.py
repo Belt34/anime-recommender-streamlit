@@ -9,7 +9,6 @@ from sklearn.metrics.pairwise import sigmoid_kernel
 
 warnings.filterwarnings('ignore')
 
-# Konfigurasi Tampilan Halaman Web Streamlit
 st.set_page_config(page_title="Anime Recommender System", page_icon="🎬", layout="centered")
 
 # ==========================================
@@ -21,21 +20,17 @@ def download_dataset_from_kaggle():
     
     if not os.path.exists(path_anime):
         with st.spinner("Sedang mengunduh dataset dari Kaggle (Proses ini hanya berjalan sekali)..."):
-            # Membaca kredensial dari Streamlit Secrets
             os.environ['KAGGLE_USERNAME'] = st.secrets["KAGGLE_USERNAME"]
             os.environ['KAGGLE_KEY'] = st.secrets["KAGGLE_KEY"]
             
             try:
-                # Membuat folder secara manual untuk memastikan direktori tersedia
                 os.makedirs("anime-data", exist_ok=True)
-                
                 from kaggle.api.kaggle_api_extended import KaggleApi
                 api = KaggleApi()
                 api.authenticate()
                 
-                # Mendownload seluruh paket dataset seutuhnya
+                # Mendownload paket dataset seutuhnya
                 api.dataset_download_files('CooperUnion/anime-recommendations-database', path='anime-data', unzip=True)
-                print("Download dan Ekstrak dari Kaggle Berhasil!")
             except Exception as e:
                 st.error(f"Gagal mendownload dataset: {e}")
 
@@ -45,15 +40,12 @@ download_dataset_from_kaggle()
 @st.cache_data
 def load_and_process_data():
     try:
-        # Kita hanya membaca anime.csv agar RAM server gratisan tidak jebol
+        # HANYA MEMBACA anime.csv (Jangan rating.csv agar RAM 1GB Streamlit tidak jebol!)
         anime = pd.read_csv("anime-data/anime.csv")
         
-        # Hapus baris anime yang namanya kosong atau duplikat
         rec_data = anime.dropna(subset=['name']).copy()
         rec_data.drop_duplicates(subset="name", keep="first", inplace=True)
         rec_data.reset_index(drop=True, inplace=True)
-        
-        # Mengisi genre yang kosong
         rec_data["genre"] = rec_data["genre"].fillna("")
 
         genres = rec_data["genre"].str.split(", |, |,").astype(str)

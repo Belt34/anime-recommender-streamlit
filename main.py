@@ -12,11 +12,12 @@ warnings.filterwarnings('ignore')
 st.set_page_config(page_title="Anime Recommender System", page_icon="🎬", layout="centered")
 
 # ==========================================
-# 1. DOWNLOAD OTOMATIS DARI KAGGLE
+# 1. DOWNLOAD OTOMATIS DARI KAGGLE (PERBAIKAN)
 # ==========================================
 @st.cache_resource
 def download_dataset_from_kaggle():
     path_anime = "anime-data/anime.csv"
+    zip_target = "anime-data/anime-recommendations-database.zip"
     
     if not os.path.exists(path_anime):
         with st.spinner("Sedang mengunduh dataset dari Kaggle (Proses ini hanya berjalan sekali)..."):
@@ -29,8 +30,15 @@ def download_dataset_from_kaggle():
                 api = KaggleApi()
                 api.authenticate()
                 
-                # Mendownload paket dataset seutuhnya
-                api.dataset_download_files('CooperUnion/anime-recommendations-database', path='anime-data', unzip=True)
+                # 1. Download file zip asli dari Kaggle (unzip diatur False agar stabil)
+                api.dataset_download_files('CooperUnion/anime-recommendations-database', path='anime-data', unzip=False)
+                
+                # 2. Paksa ekstrak manual menggunakan modul zipfile Python (Pasti Berhasil)
+                if os.path.exists(zip_target):
+                    with zipfile.ZipFile(zip_target, 'r') as zip_ref:
+                        zip_ref.extractall("anime-data/")
+                    print("Ekstrak manual berhasil!")
+                    
             except Exception as e:
                 st.error(f"Gagal mendownload dataset: {e}")
 
@@ -40,7 +48,6 @@ download_dataset_from_kaggle()
 @st.cache_data
 def load_and_process_data():
     try:
-        # HANYA MEMBACA anime.csv (Jangan rating.csv agar RAM 1GB Streamlit tidak jebol!)
         anime = pd.read_csv("anime-data/anime.csv")
         
         rec_data = anime.dropna(subset=['name']).copy()

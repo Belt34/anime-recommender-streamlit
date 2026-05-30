@@ -33,7 +33,7 @@ def download_dataset_from_kaggle():
                 api = KaggleApi()
                 api.authenticate()
                 
-                # Mendownload seluruh paket dataset (lebih aman daripada download file tunggal)
+                # Mendownload seluruh paket dataset seutuhnya
                 api.dataset_download_files('CooperUnion/anime-recommendations-database', path='anime-data', unzip=True)
                 print("Download dan Ekstrak dari Kaggle Berhasil!")
             except Exception as e:
@@ -45,7 +45,7 @@ download_dataset_from_kaggle()
 @st.cache_data
 def load_and_process_data():
     try:
-        # Kita hanya membaca anime.csv (tidak membaca rating.csv yang berukuran 7.8 juta baris)
+        # Kita hanya membaca anime.csv agar RAM server gratisan tidak jebol
         anime = pd.read_csv("anime-data/anime.csv")
         
         # Hapus baris anime yang namanya kosong atau duplikat

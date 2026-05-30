@@ -3,7 +3,7 @@ import zipfile
 import warnings
 import numpy as np
 import pandas as pd
-import streamlit as st  # <-- Menggunakan Streamlit
+import streamlit as st
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import sigmoid_kernel
 
@@ -15,41 +15,44 @@ st.set_page_config(page_title="Anime Recommender System", page_icon="🎬", layo
 # ==========================================
 # 1. DOWNLOAD OTOMATIS DARI KAGGLE
 # ==========================================
-@st.cache_resource # Mempercepat loading agar tidak download ulang setiap web direfresh
+@st.cache_resource
 def download_dataset_from_kaggle():
     path_anime = "anime-data/anime.csv"
-    path_rating = "anime-data/rating.csv"
     
-    if not os.path.exists(path_anime) or not os.path.exists(path_rating):
+    if not os.path.exists(path_anime):
         with st.spinner("Sedang mengunduh dataset dari Kaggle (Proses ini hanya berjalan sekali)..."):
-            # ISI DENGAN API KEY KAGGLE KAMU SEPERTI SEBELUMNYA
-            # GANTI DUA BARIS YANG LAMA DENGAN INI:
             os.environ['KAGGLE_USERNAME'] = st.secrets["KAGGLE_USERNAME"]
-            os.environ['KAGGLE_KEY'] = st.secrets["KAGGLE_KEY"]     
+            os.environ['KAGGLE_KEY'] = st.secrets["KAGGLE_KEY"]
             
             try:
                 from kaggle.api.kaggle_api_extended import KaggleApi
                 api = KaggleApi()
                 api.authenticate()
-                api.dataset_download_files('CooperUnion/anime-recommendations-database', path='anime-data', unzip=True)
+                # Cukup download anime.csv saja untuk menghemat waktu dan kuota server
+                api.dataset_download_file('CooperUnion/anime-recommendations-database', 'anime.csv', path='anime-data')
+                
+                # Jika terdownload sebagai zip individual, kita ekstrak
+                if os.path.exists("anime-data/anime.csv.zip"):
+                    with zipfile.ZipFile("anime-data/anime.csv.zip", 'r') as zip_ref:
+                        zip_ref.extractall("anime-data/")
             except Exception as e:
                 st.error(f"Gagal mendownload dataset: {e}")
 
 download_dataset_from_kaggle()
 
-# Memuat Data & Membuat Model (Menggunakan Cache agar Web Ringan & Cepat)
+# Memuat Data & Membuat Model (Sangat Hemat RAM)
 @st.cache_data
 def load_and_process_data():
     try:
+        # Kita hanya membaca anime.csv (tidak membaca rating.csv yang berukuran 7.8 juta baris)
         anime = pd.read_csv("anime-data/anime.csv")
-        rating = pd.read_csv("anime-data/rating.csv")
         
-        fulldata = pd.merge(anime, rating, on="anime_id", suffixes=[None, "_user"])
-        fulldata = fulldata.rename(columns={"rating_user": "user_rating"})
-
-        rec_data = fulldata.copy()
+        # Hapus baris anime yang namanya kosong atau duplikat
+        rec_data = anime.dropna(subset=['name']).copy()
         rec_data.drop_duplicates(subset="name", keep="first", inplace=True)
         rec_data.reset_index(drop=True, inplace=True)
+        
+        # Mengisi genre yang kosong
         rec_data["genre"] = rec_data["genre"].fillna("")
 
         genres = rec_data["genre"].str.split(", |, |,").astype(str)
@@ -63,11 +66,12 @@ def load_and_process_data():
         sig = sigmoid_kernel(tfv_matrix, tfv_matrix)
         rec_indices = pd.Series(rec_data.index, index=rec_data["name"]).drop_duplicates()
         
-        return anime, rec_data, sig, rec_indices
-    except:
-        return pd.DataFrame(), pd.DataFrame(), None, None
+        return rec_data, sig, rec_indices
+    except Exception as e:
+        st.error(f"Gagal memproses data: {e}")
+        return pd.DataFrame(), None, None
 
-anime, rec_data, sig, rec_indices = load_and_process_data()
+rec_data, sig, rec_indices = load_and_process_data()
 
 # ==========================================
 # 2. TAMPILAN ANTARMUKA WEB (UI)
@@ -75,8 +79,7 @@ anime, rec_data, sig, rec_indices = load_and_process_data()
 st.title("🎬 Anime Recommendation System")
 st.write("Dapatkan 10 rekomendasi anime terbaik berdasarkan kemiripan genre!")
 
-if sig is not None:
-    # Menggunakan Selectbox agar pengguna tidak salah ketik nama anime
+if sig is not None and not rec_data.empty:
     list_anime = rec_data['name'].unique()
     search_query = st.selectbox("Pilih atau ketik nama anime yang kamu sukai:", list_anime)
 
@@ -89,14 +92,14 @@ if sig is not None:
         
         rec_dic = {
             "No": range(1, 11),
-            "Judul Anime": anime["name"].iloc[anime_indices].values,
-            "Rating Global": anime["rating"].iloc[anime_indices].values
+            "Judul Anime": rec_data["name"].iloc[anime_indices].values,
+            "Genre": rec_data["genre"].iloc[anime_indices].values,
+            "Rating": rec_data["rating"].iloc[anime_indices].values
         }
         dataframe = pd.DataFrame(data=rec_dic)
         dataframe.set_index("No", inplace=True)
         
         st.success(f"Berikut adalah 10 rekomendasi anime bagi penonton **{search_query}**:")
-        # Menampilkan tabel interaktif di web
         st.dataframe(dataframe, use_container_width=True)
 else:
-    st.error("Gagal memuat model. Pastikan dataset terunduh dengan benar.")
+    st.error("Gagal memuat model atau dataset belum siap.")

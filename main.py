@@ -1,3 +1,5 @@
+import os
+import zipfile
 import warnings
 import numpy as np
 import pandas as pd
@@ -9,39 +11,59 @@ warnings.filterwarnings('ignore')
 
 st.set_page_config(page_title="Anime Recommender System", page_icon="🎬", layout="centered")
 
-# Memuat Data Langsung Menggunakan URL Jalur Pipa Instan
+# ==========================================
+# 1. EKSTRAK DATASET LOKAL DARI GITHUB
+# ==========================================
+@st.cache_resource
+def extract_local_dataset():
+    path_anime = "anime.csv"
+    zip_target = "anime.zip"
+    
+    # Jika file csv belum ada tapi zip-nya ada, langsung ekstrak instan
+    if not os.path.exists(path_anime) and os.path.exists(zip_target):
+        try:
+            with zipfile.ZipFile(zip_target, 'r') as zip_ref:
+                zip_ref.extractall(".")
+            print("Ekstrak file anime.zip lokal berhasil!")
+        except Exception as e:
+            st.error(f"Gagal mengekstrak file lokal: {e}")
+
+# Jalankan ekstraksi file zip yang ada di reponmu
+extract_local_dataset()
+
+# Memuat Data & Membuat Model (Sangat Hemat RAM)
 @st.cache_data
 def load_and_process_data():
     try:
-        # Menembak langsung file anime.csv publik yang super stabil lewat internet
-      url_anime = "https://raw.githubusercontent.com/Mayank-Tyagi/Anime-Recommendation-System/master/anime.csv"
-        
-        with st.spinner("Sedang menghubungkan ke basis data anime..."):
-            anime = pd.read_csv(url_anime)
-        
-        rec_data = anime.dropna(subset=['name']).copy()
-        rec_data.drop_duplicates(subset="name", keep="first", inplace=True)
-        rec_data.reset_index(drop=True, inplace=True)
-        rec_data["genre"] = rec_data["genre"].fillna("")
+        if os.path.exists("anime.csv"):
+            anime = pd.read_csv("anime.csv")
+            
+            rec_data = anime.dropna(subset=['name']).copy()
+            rec_data.drop_duplicates(subset="name", keep="first", inplace=True)
+            rec_data.reset_index(drop=True, inplace=True)
+            rec_data["genre"] = rec_data["genre"].fillna("")
 
-        genres = rec_data["genre"].str.split(", |, |,").astype(str)
+            genres = rec_data["genre"].str.split(", |, |,").astype(str)
 
-        tfv = TfidfVectorizer(
-            min_df=3, max_features=None, strip_accents="unicode", 
-            analyzer="word", token_pattern=r"\w{1,}", 
-            ngram_range=(1, 3), stop_words="english"
-        )
-        tfv_matrix = tfv.fit_transform(genres)
-        sig = sigmoid_kernel(tfv_matrix, tfv_matrix)
-        rec_indices = pd.Series(rec_data.index, index=rec_data["name"]).drop_duplicates()
-        
-        return rec_data, sig, rec_indices
+            tfv = TfidfVectorizer(
+                min_df=3, max_features=None, strip_accents="unicode", 
+                analyzer="word", token_pattern=r"\w{1,}", 
+                ngram_range=(1, 3), stop_words="english"
+            )
+            tfv_matrix = tfv.fit_transform(genres)
+            sig = sigmoid_kernel(tfv_matrix, tfv_matrix)
+            rec_indices = pd.Series(rec_data.index, index=rec_data["name"]).drop_duplicates()
+            
+            return rec_data, sig, rec_indices
+        else:
+            st.error("File anime.csv tidak ditemukan setelah ekstraksi!")
+            return pd.DataFrame(), None, None
     except Exception as e:
         st.error(f"Gagal memproses data: {e}")
         return pd.DataFrame(), None, None
 
 # ==========================================
-# TAMPILAN ANTARMUKA WEB (UI)
+# 2. TAMPILAN ANTARMUKA WEB (UI)
 # ==========================================
 st.title("🎬 Anime Recommendation System")
 st.write("Dapatkan 10 rekomendasi anime terbaik berdasarkan kemiripan genre!")
@@ -70,3 +92,5 @@ if sig is not None and not rec_data.empty:
         
         st.success(f"Berikut adalah 10 rekomendasi anime bagi penonton **{search_query}**:")
         st.dataframe(dataframe, use_container_width=True)
+else:
+    st.info("Sedang memuat data, silakan tunggu sebentar...")

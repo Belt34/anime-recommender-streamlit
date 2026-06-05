@@ -16,20 +16,20 @@ st.set_page_config(page_title="Anime Recommender System", page_icon="🎬", layo
 # ==========================================
 st.markdown("""
     <style>
-        /* 1. Mengubah latar belakang utama menjadi Pink */
+        /* 1. Mengubah latar belakang utama menjadi Putih Mochi */
         .stApp {
-            background-color: #FFB7C5;
+            background-color: #FFFFFF;
         }
         
-        /* 2. Mengubah warna judul utama (H1) menjadi putih */
+        /* 2. Mengubah warna judul utama (H1) menjadi Pink Sakura */
         h1 {
-            color: #FFFFFF !important;
+            color: #FFB7B2 !important;
             font-weight: 700;
         }
         
         /* 3. Mengubah warna sub-judul/deskripsi langsung di bawah judul menjadi Hijau Matcha */
         h1 + p, .stMarkdown p:first-of-type {
-            color: #8A9A5B !important;
+            color: #A8E6CF !important;
             font-size: 1.1rem;
         }
         
@@ -52,9 +52,14 @@ st.markdown("""
             color: #6F4E37 !important; /* Semua teks di sidebar berwarna coklat kayu */
         }
         
-        /* 6. Mengubah warna komponen interaktif seperti Radio Button / Slider */
+        /* 6. Mengubah warna komponen interaktif & MEMBUAT TEKS PILLS MENJADI PUTIH */
         .st-bd, .st-ae, .st-af {
             color: #FFB7B2 !important;
+        }
+        
+        /* Mengubah warna teks di dalam st.pills (tombol pilihan hitam) menjadi putih */
+        div[data-testid="stPills"] button p {
+            color: #FFFFFF !important;
         }
 
         /* 7. KUSTOMISASI TABEL: Warna Merah Gelap / Isian Pasta Kacang (Anko) */

@@ -35,7 +35,7 @@ st.markdown("""
         
         /* 4. Aksen Coklat Kayu untuk Sub-header (H2, H3, dll) dan teks umum */
         h2, h3, h4, h5, h6 {
-            color: #6F4E37 !important;
+            color: #5C4033 !important;
         }
         
         div[data-testid="stMarkdownContainer"] p {
@@ -64,7 +64,7 @@ st.markdown("""
 
         /* 7. KUSTOMISASI TABEL: Warna Merah Gelap / Isian Pasta Kacang (Anko) */
         .stTable table {
-            color: #5C4033 !important; /* Teks tabel coklat gelap agar senada */
+            color: #6F4E37 !important; /* Teks tabel coklat gelap agar senada */
             border: 2px solid #800020 !important; /* Garis luar merah gelap/maroon */
         }
         

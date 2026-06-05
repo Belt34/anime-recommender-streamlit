@@ -495,9 +495,71 @@ elif menu == "Result / Prediction Demo":
         st.info("Sedang memuat data, silakan tunggu sebentar...")
 
 elif menu == "Feature Importance":
-    st.title("📊 Feature Importance")
+    st.title("📊 Feature Importance Analysis")
     st.write("Menampilkan bobot fitur kata (N-Gram) dari genre yang paling memengaruhi model rekomendasi.")
 
+    if rec_data.empty:
+        st.warning("Data anime tidak tersedia untuk dianalisis.")
+    else:
+        st.subheader("🧐 Bagaimana Model Menilai Sebuah Genre?")
+        st.write("Model menggunakan metode **TF-IDF**. Semakin tinggi nilai skor sebuah kata/genre, "
+                 "artinya kata tersebut sifatnya unik dan menjadi pembeda kuat antar-anime di dalam sistem.")
+
+        try:
+            import matplotlib.pyplot as plt
+            import seaborn as sns
+            
+            # Kita lakukan proses ekstraksi fitur secara terpisah untuk visualisasi
+            # Menggunakan parameter yang persis sama dengan dapur modelmu
+            from sklearn.feature_extraction.text import TfidfVectorizer
+            
+            genres_clean = rec_data["genre"].str.split(", |, |,").astype(str)
+            tfv_viz = TfidfVectorizer(min_df=3, max_features=3000, 
+                                      strip_accents="unicode", analyzer="word", 
+                                      token_pattern=r"\w{1,}", ngram_range=(1, 3), 
+                                      stop_words="english")
+            tfv_viz.fit(genres_clean)
+            
+            # Mengambil daftar kata (feature names) dan nilai IDF-nya
+            feature_names = tfv_viz.get_feature_names_out()
+            idfs = tfv_viz.idf_
+            
+            # Membuat DataFrame untuk menampung skor kepentingan fitur
+            importance_df = pd.DataFrame({
+                'Genre Feature': feature_names,
+                'Importance Score (IDF)': idfs
+            }).sort_values(by='Importance Score (IDF)', ascending=False) # Urutkan dari yang tertinggi
+            
+            # Slider Interaktif untuk menentukan jumlah fitur yang ingin dilihat user
+            num_features = st.slider("Pilih jumlah fitur terpenting yang ingin ditampilkan:", 
+                                     min_value=10, max_value=40, value=15)
+            
+            # Ambil data top N sesuai pilihan slider
+            top_features = importance_df.head(num_features)
+            
+            st.write(f"### 🔝 Top {num_features} Fitur Genre Paling Berpengaruh")
+            
+            # Pembuatan Grafik Bar Chart Horizontal menggunakan Seaborn
+            fig_importance, ax_importance = plt.subplots(figsize=(10, 6))
+            sns.barplot(data=top_features, 
+                        x='Importance Score (IDF)', 
+                        y='Genre Feature', 
+                        palette='flare', 
+                        ax=ax_importance)
+            
+            ax_importance.set_title(f"Top {num_features} Feature Importance Berdasarkan Skor IDF", fontsize=14)
+            ax_importance.set_xlabel("Skor Kepentingan (Semakin Tinggi = Semakin Unik/Spesifik)", fontsize=11)
+            ax_importance.set_ylabel("Fitur Teks / N-Gram Genre", fontsize=11)
+            
+            # Tampilkan Grafik di Streamlit
+            st.pyplot(fig_importance)
+            
+            # Tampilkan data dalam bentuk tabel interaktif di bawahnya
+            with st.expander("📄 Lihat Seluruh Daftar Tabel Bobot Fitur"):
+                st.dataframe(importance_df.reset_index(drop=True), use_container_width=True)
+                
+        except Exception as e:
+            st.error(f"G
 elif menu == "About Us":
     st.title("👥 About Us")
     st.write("Aplikasi ini dikembangkan sebagai sistem rekomendasi berbasis konten menggunakan TF-IDF dan Sigmoid Kernel.")

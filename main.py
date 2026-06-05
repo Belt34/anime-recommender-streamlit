@@ -16,20 +16,20 @@ st.set_page_config(page_title="Anime Recommender System", page_icon="🎬", layo
 # ==========================================
 st.markdown("""
     <style>
-        /* 1. Mengubah latar belakang utama menjadi Putih Mochi */
+        /* 1. Mengubah latar belakang utama menjadi Pink */
         .stApp {
-            background-color: #FFFFFF;
+            background-color: #FFB7C5;
         }
         
         /* 2. Mengubah warna judul utama (H1) menjadi Pink Sakura */
         h1 {
-            color: #FFB7B2 !important;
+            color: #FFFFFF !important;
             font-weight: 700;
         }
         
         /* 3. Mengubah warna sub-judul/deskripsi langsung di bawah judul menjadi Hijau Matcha */
         h1 + p, .stMarkdown p:first-of-type {
-            color: #A8E6CF !important;
+            color: #8A9A5B !important;
             font-size: 1.1rem;
         }
         

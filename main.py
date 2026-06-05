@@ -65,11 +65,11 @@ st.markdown("""
         /* 7. KUSTOMISASI TABEL: Warna Merah Gelap / Isian Pasta Kacang (Anko) */
         .stTable table {
             color: ##000000 !important; /* MENGUBAH TEKS ISI TABEL MENJADI PUTIH BERSIH */
-            border: 2px solid #800020 !important; /* Garis luar merah gelap/maroon */
+            border: 2px solid #FFFFFF !important; /* Garis luar merah gelap/maroon */
         }
         
         .stTable th {
-            background-color: #800020 !important; /* Latar belakang header menjadi merah gelap */
+            background-color: #FFFFFF !important; /* Latar belakang header menjadi merah gelap */
             color: ##000000 !important; /* Teks header menjadi putih agar kontras */
             font-weight: bold;
         }
@@ -81,7 +81,7 @@ st.markdown("""
         
         /* Mengubah warna teks di dalam komponen dataframe/tabel interaktif agar ikut menjadi putih */
         div[data-testid="stDataFrame"] {
-            border: 2px solid #800020 !important;
+            border: 2px solid #FFFFFF !important;
         }
         
         div[data-testid="stDataFrame"] div {
@@ -300,7 +300,7 @@ elif menu == "Description Page":
                 <li><b>user_id:</b> Randomly generated, anonymized string used to identify a single unique reviewer.</li>
                 <li><b>anime_id:</b> Relational reference matching the specific anime rated by the user.</li>
                 <li><b>rating:</b> Explicit review score (1-10 scale) assigned by the individual user.</li>
-                <li style="list-style-type: none; margin-top: 10px; font-style: italic; color: #800020;">
+                <li style="list-style-type: none; margin-top: 10px; font-style: italic; color: #FFFFFF;">
                     ⚠️ <b>Special Value Note:</b> A value of -1 indicates that the user logged the title as watched but chose not to input an explicit numerical score.
                 </li>
             </ul>

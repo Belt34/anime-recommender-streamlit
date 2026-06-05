@@ -562,4 +562,99 @@ elif menu == "Feature Importance":
             st.error(f"Gagal memproses visualisasi Feature Importance: {e}")
 elif menu == "About Us":
     st.title("👥 About Us")
-    st.write("Aplikasi ini dikembangkan sebagai sistem rekomendasi berbasis konten menggunakan TF-IDF dan Sigmoid Kernel.")
+    
+    # --- HEADER GROUP ---
+    st.markdown("""
+    <div style="background-color: #1E1E1E; padding: 20px; border-radius: 10px; border-left: 5px solid #FF4B4B; margin-bottom: 25px;">
+        <h2 style="margin: 0; color: white;">Group 6</h2>
+        <p style="margin: 5px 0 0 0; color: #B0B0B0;">Machine Learning Assignment — Binus University</p>
+        <p style="margin: 0; color: #888888; font-size: 0.9em;">Binusian 2028</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # --- TEAM MEMBERS SECTION ---
+    st.subheader("🎓 Team Members")
+    
+    # Membuat 3 kolom untuk 3 anggota tim
+    col_member1, col_member2, col_member3 = st.columns(3)
+    
+    with col_member1:
+        st.markdown("""
+        <div style="background-color: #262626; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #444;">
+            <span style="font-size: 40px;">👨‍💻</span>
+            <h4 style="margin: 10px 0 5px 0;">Jimmy Stephen</h4>
+            <p style="color: #FF4B4B; margin: 0; font-weight: bold;">2802461151</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col_member2:
+        st.markdown("""
+        <div style="background-color: #262626; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #444;">
+            <span style="font-size: 40px;">👨‍💻</span>
+            <h4 style="margin: 10px 0 5px 0;">Nicholas Lee</h4>
+            <p style="color: #FF4B4B; margin: 0; font-weight: bold;">2802450721</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col_member3:
+        st.markdown("""
+        <div style="background-color: #262626; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #444;">
+            <span style="font-size: 40px;">👨‍💻</span>
+            <h4 style="margin: 10px 0 5px 0;">C. Darryl Witono</h4>
+            <p style="color: #FF4B4B; margin: 0; font-weight: bold;">2802465420</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.write("---")
+    
+    # --- UNIVERSITY & COURSE INFO ---
+    st.subheader("🏛️ University & Course Detail")
+    
+    info_univ = {
+        "Detail": [
+            "University", 
+            "Program", 
+            "Batch", 
+            "Course", 
+            "Assignment", 
+            "Semester"
+        ],
+        "Information": [
+            "Binus University", 
+            "Computer Science", 
+            "Binusian 2028", 
+            "Machine Learning", 
+            "Group Project — Recommendation System", 
+            "Even Semester 2025/2026"
+        ]
+    }
+    st.table(pd.DataFrame(info_univ).set_index("Detail"))
+
+    st.write("---")
+
+    # --- PROJECT INFORMATION ---
+    st.subheader("📋 Project Information")
+    
+    info_project = {
+        "Item": [
+            "Project Title", 
+            "Type", 
+            "Dataset Source", 
+            "Models / Core Logic", 
+            "Framework", 
+            "Visualization"
+        ],
+        "Project Detail": [
+            "Machine Learning-Based Analysis of User Preferences for Recommending Future Anime & Manga", 
+            "Content-Based Filtering (Unsupervised Learning)", 
+            "Kaggle — Anime Recommendations Database", 
+            "TF-IDF Vectorizer & Sigmoid Kernel Similarity", 
+            "Streamlit (Python)", 
+            "Matplotlib, Seaborn"
+        ]
+    }
+    st.table(pd.DataFrame(info_project).set_index("Item"))
+    
+    # --- FOOTER ---
+    st.write("---")
+    st.caption("© 2026 Group 6 — Binus University | Machine Learning Assignment. Built with ❤️ using Python & Streamlit")

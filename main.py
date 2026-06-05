@@ -37,22 +37,44 @@ st.markdown("""
         }
         
         div[data-testid="stMarkdownContainer"] p {
-            color: #5C4033; /* Coklat kayu gelap agar teks deskripsi tetap kontras dan terbaca */
+            color: #5C4033;
         }
         
-        /* 5. Kostumisasi Sidebar (Opsional: dibuat senada dengan tema) */
+        /* 5. Kostumisasi Sidebar */
         [data-testid="stSidebar"] {
-            background-color: #F9F1F0; /* Putih sedikit semburat pink lembut */
-            border-right: 2px solid #6F4E37; /* Garis pembatas coklat kayu */
+            background-color: #F9F1F0;
+            border-right: 2px solid #6F4E37;
         }
         
         [data-testid="stSidebar"] * {
-            color: #6F4E37 !important; /* Semua teks di sidebar berwarna coklat kayu */
+            color: #6F4E37 !important;
         }
         
         /* 6. Mengubah warna komponen interaktif seperti Radio Button / Slider */
         .st-bd, .st-ae, .st-af {
             color: #FFB7B2 !important;
+        }
+
+        /* 7. KUSTOMISASI TABEL: Warna Merah Gelap / Isian Pasta Kacang (Anko) */
+        /* Mengubah warna teks header tabel dan garis pembatas */
+        .stTable table {
+            color: #5C4033 !important; /* Teks tabel coklat gelap agar senada */
+            border: 2px solid #800020 !important; /* Garis luar merah gelap/maroon */
+        }
+        
+        .stTable th {
+            background-color: #800020 !important; /* Latar belakang header menjadi merah gelap */
+            color: #FFFFFF !important; /* Teks header menjadi putih agar kontras */
+            font-weight: bold;
+        }
+        
+        .stTable td {
+            border-bottom: 1px solid #E0B0FF !important; /* Garis pembatas baris pink tipis */
+        }
+        
+        /* Mengubah warna teks di dalam st.dataframe jika kalian menggunakannya */
+        div[data-testid="stDataFrame"] {
+            border: 2px solid #800020 !important;
         }
     </style>
 """, unsafe_allow_html=True)

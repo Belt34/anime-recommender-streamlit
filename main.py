@@ -11,6 +11,51 @@ warnings.filterwarnings('ignore')
 
 st.set_page_config(page_title="Anime Recommender System", page_icon="🎬", layout="centered")
 
+# --- SAKURA MOCHI THEME CUSTOMIZATION ---
+st.markdown("""
+    <style>
+        /* 1. Mengubah latar belakang utama menjadi Putih Mochi */
+        .stApp {
+            background-color: #FFFFFF;
+        }
+        
+        /* 2. Mengubah warna judul utama (H1) menjadi Pink Sakura */
+        h1 {
+            color: #FFB7B2 !important;
+            font-weight: 700;
+        }
+        
+        /* 3. Mengubah warna sub-judul/deskripsi langsung di bawah judul menjadi Hijau Matcha */
+        h1 + p, .stMarkdown p:first-of-type {
+            color: #A8E6CF !important;
+            font-size: 1.1rem;
+        }
+        
+        /* 4. Aksen Coklat Kayu untuk Sub-header (H2, H3) dan teks umum */
+        h2, h3, h4, h5, h6 {
+            color: #6F4E37 !important;
+        }
+        
+        div[data-testid="stMarkdownContainer"] p {
+            color: #5C4033; /* Coklat kayu gelap agar teks deskripsi tetap kontras dan terbaca */
+        }
+        
+        /* 5. Kostumisasi Sidebar (Opsional: dibuat senada dengan tema) */
+        [data-testid="stSidebar"] {
+            background-color: #F9F1F0; /* Putih sedikit semburat pink lembut */
+            border-right: 2px solid #6F4E37; /* Garis pembatas coklat kayu */
+        }
+        
+        [data-testid="stSidebar"] * {
+            color: #6F4E37 !important; /* Semua teks di sidebar berwarna coklat kayu */
+        }
+        
+        /* 6. Mengubah warna komponen interaktif seperti Radio Button / Slider */
+        .st-bd, .st-ae, .st-af {
+            color: #FFB7B2 !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
 # ==========================================
 # 1. EKSTRAK DATASET LOKAL DARI GITHUB
 # ==========================================

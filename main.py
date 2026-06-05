@@ -23,7 +23,7 @@ st.markdown("""
         
         /* 2. Mengubah warna judul utama (H1) menjadi Pink Sakura */
         h1 {
-            color: #FFFFFF !important;
+            color: #f2e4d0 !important;
             font-weight: 700;
         }
         
@@ -59,7 +59,7 @@ st.markdown("""
         
         /* Mengubah warna teks di dalam st.pills (tombol pilihan hitam) menjadi putih */
         div[data-testid="stPills"] button p {
-            color: #FFFFFF !important;
+            color: #f2e4d0 !important;
         }
 
         /* 7. KUSTOMISASI TABEL: Warna Merah Gelap / Isian Pasta Kacang (Anko) */
@@ -70,7 +70,7 @@ st.markdown("""
         
         .stTable th {
             background-color: #800020 !important; /* Latar belakang header menjadi merah gelap */
-            color: #FFFFFF !important; /* Teks header menjadi putih agar kontras */
+            color: #f2e4d0 !important; /* Teks header menjadi putih agar kontras */
             font-weight: bold;
         }
         

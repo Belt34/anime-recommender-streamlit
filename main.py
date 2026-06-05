@@ -559,7 +559,7 @@ elif menu == "Feature Importance":
                 st.dataframe(importance_df.reset_index(drop=True), use_container_width=True)
                 
         except Exception as e:
-            st.error(f"G
+            st.error(f"Gagal memproses visualisasi Feature Importance: {e}")
 elif menu == "About Us":
     st.title("👥 About Us")
     st.write("Aplikasi ini dikembangkan sebagai sistem rekomendasi berbasis konten menggunakan TF-IDF dan Sigmoid Kernel.")

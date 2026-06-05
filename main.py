@@ -59,24 +59,24 @@ st.markdown("""
         
         /* Mengubah warna teks di dalam st.pills (tombol pilihan hitam) menjadi putih */
         div[data-testid="stPills"] button p {
-            color: #FFFFFF !important;
+            color: ##000000 !important;
         }
 
         /* 7. KUSTOMISASI TABEL: Warna Merah Gelap / Isian Pasta Kacang (Anko) */
         .stTable table {
-            color: #FFFFFF !important; /* MENGUBAH TEKS ISI TABEL MENJADI PUTIH BERSIH */
+            color: ##000000 !important; /* MENGUBAH TEKS ISI TABEL MENJADI PUTIH BERSIH */
             border: 2px solid #800020 !important; /* Garis luar merah gelap/maroon */
         }
         
         .stTable th {
             background-color: #800020 !important; /* Latar belakang header menjadi merah gelap */
-            color: #FFFFFF !important; /* Teks header menjadi putih agar kontras */
+            color: ##000000 !important; /* Teks header menjadi putih agar kontras */
             font-weight: bold;
         }
         
         .stTable td {
             border-bottom: 1px solid #E0B0FF !important; /* Garis pembatas baris pink tipis */
-            color: #FFFFFF !important; /* Memastikan teks di dalam cell td berwarna putih */
+            color: ##000000 !important; /* Memastikan teks di dalam cell td berwarna putih */
         }
         
         /* Mengubah warna teks di dalam komponen dataframe/tabel interaktif agar ikut menjadi putih */
@@ -85,7 +85,7 @@ st.markdown("""
         }
         
         div[data-testid="stDataFrame"] div {
-            color: #FFFFFF !important;
+            color: ##000000 !important;
         }
     </style>
 """, unsafe_allow_html=True)

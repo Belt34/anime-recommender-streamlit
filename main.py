@@ -206,9 +206,70 @@ elif menu == "EDA":
             else:
                 st.write("Fitur 'type' tidak ditemukan dalam data.")
 elif menu == "Description Page":
-    st.title("📝 Description Page")
-    st.write("Penjelasan detail mengenai proyek, dataset, dan sistem rekomendasi yang dibangun.")
+    st.title("📝 Dataset Description")
+    
+    st.markdown("""
+    ## Dataset Overview
+    - **Source:** MyAnimeList (via Kaggle)
+    - **Dataset Name:** [Anime Recommendations Database](https://www.kaggle.com/datasets/CooperUnion/anime-recommendations-database)
+    - **Creators:** CooperUnion
+    - **Scope:** Data preferensi dari 73.516 user untuk 12.294 anime.
+    """)
+    
+    # --- FEATURE DICTIONARY ---
+    st.subheader("📋 Feature Dictionary")
+    st.write("Dataset ini terdiri dari dua file utama dengan detail kolom sebagai berikut:")
+    
+    with st.expander("📂 1. Keterangan Kolom anime.csv (Informasi Katalog)"):
+        st.markdown("""
+        * **anime_id:** ID unik dari myanimelist.net untuk mengidentifikasi setiap judul anime.
+        * **name:** Nama lengkap atau judul resmi dari anime.
+        * **genre:** Daftar genre yang melekat pada anime tersebut (dipisahkan oleh koma).
+        * **type:** Format penayangan anime (contoh: TV, Movie, OVA, Special).
+        * **episodes:** Jumlah total episode tayangan (bernilai `1` jika bertipe Movie).
+        * **rating:** Rata-rata nilai rating global (skala 1-10) yang dihitung secara agregat.
+        * **members:** Jumlah total anggota komunitas yang memasukkan anime ini ke dalam daftar mereka (indikator popularitas).
+        """)
+        
+    with st.expander("📂 2. Keterangan Kolom rating.csv (Preferensi User)"):
+        st.markdown("""
+        * **user_id:** ID acak terenkripsi untuk mengidentifikasi user unik secara anonim.
+        * **anime_id:** ID anime yang telah berinteraksi dengan user tersebut.
+        * **rating:** Nilai rating (skala 1-10) yang diberikan oleh user. 
+          * *Catatan:* Nilai `-1` menandakan user tersebut telah menonton anime-nya namun tidak memberikan nilai rating numerik.
+        """)
 
+    # --- DATA SHAPE INFO ---
+    st.write("---")
+    st.subheader("📊 Data Shape & Quick Info")
+    
+    if not rec_data.empty:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Total Baris Data (Katalog)", f"{rec_data.shape[0]:,}")
+        with col2:
+            st.metric("Total Fitur/Kolom", f"{rec_data.shape[1]}")
+        with col3:
+            st.metric("Missing Values Terdeteksi", f"{rec_data.isnull().sum().sum()}")
+            
+        st.write("**Pratinjau Data Mentah (Raw Data Preview):**")
+        st.dataframe(rec_data.head(10), use_container_width=True)
+    else:
+        st.warning("Data anime belum dimuat. Pratinjau tidak dapat ditampilkan.")
+
+    # --- RECOMMANDATION WORKFLOW ---
+    st.write("---")
+    st.subheader("⚙️ Recommendation Workflow")
+    
+    st.graphviz_chart("""
+    digraph G {
+        rankdir=LR;
+        node [shape=box, style=filled, color=lightblue, fontname="Helvetica"];
+        "Raw Data (Kaggle)" -> "EDA & Cleaning" -> "TF-IDF / Matrix Processing" -> "Cosine Similarity" -> "Generate Recommendation";
+    }
+    """)
+    
+    st.caption("Alur pemrosesan data dari pembacaan dataset hingga menghasilkan rekomendasi anime kustom kepada user.")
 elif menu == "Data Preprocessing":
     st.title("⚙️ Data Preprocessing")
     st.write("Proses pembersihan data, penanganan nilai kosong, dan penyiapan teks fitur.")

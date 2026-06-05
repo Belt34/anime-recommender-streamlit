@@ -23,7 +23,7 @@ st.markdown("""
         
         /* 2. Mengubah warna judul utama (H1) menjadi Pink Sakura */
         h1 {
-            color: #DEBC8C !important;
+            color: #F3E5AB !important;
             font-weight: 700;
         }
         

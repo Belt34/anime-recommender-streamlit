@@ -115,9 +115,35 @@ with st.sidebar:
 # ==========================================
 if menu == "Home":
     st.title("🏠 Home")
-    st.write("Selamat datang di aplikasi Anime Recommendation System!")
-    st.write("Silakan pilih menu di sidebar sebelah kiri untuk menjelajahi aplikasi.")
-
+    
+    # Sambutan Utama
+    st.markdown("""
+    ### Selamat datang di aplikasi **Anime Recommendation System**! 👋
+    
+    Sistem rekomendasi ini dirancang interaktif untuk membantu para penggemar menemukan tontonan baru yang relevan secara instan tanpa harus kebingungan memilih di antara ribuan judul.
+    """)
+    
+    # Kotak Deskripsi Singkat Proyek
+    st.success("""
+    💡 **Deskripsi Singkat Proyek:**
+    
+    Aplikasi ini menerapkan pilar *Unsupervised Learning* melalui metode **Content-Based Filtering**. Dengan mengekstrak karakteristik teks fitur dari komponen `genre`, model secara cerdas mengukur kedekatan antar-anime menggunakan pendekatan **TF-IDF Vectorizer** dan **Sigmoid Kernel Similarity**. 
+    
+    Hasil akhirnya adalah mesin pencari cerdas yang mampu merekomendasikan daftar anime masa depan yang paling mendekati preferensi dan kemiripan corak cerita dari anime yang kamu sukai.
+    """)
+    
+    st.write("---")
+    
+    # Petunjuk Navigasi (Membimbing user untuk mencoba menu lain)
+    st.markdown("""
+    #### 🚀 Cara Menjelajahi Aplikasi:
+    Silakan gunakan menu **Navigation** di sidebar sebelah kiri untuk mengakses seluruh rangkaian eksperimen data kami:
+    1. **EDA:** Melihat visualisasi dan pola penyebaran data mentah.
+    2. **Description Page & Preprocessing:** Memahami struktur data awal dan proses pembersihannya.
+    3. **Train Model & Feature Importance:** Mengintip konfigurasi model dan bobot genre terpenting.
+    4. **Result / Prediction Demo:** Mencoba langsung mesin rekomendasi anime secara *live*!
+    5. **About Us:** Informasi profil lengkap tim **Group 6 (Binus University)**.
+    """)
 elif menu == "EDA":
     st.title("📊 Exploratory Data Analysis")
     st.write("Jelajahi karakteristik data dari katalog anime secara interaktif.")

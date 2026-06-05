@@ -91,7 +91,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 1. EKSTRAK DATASET LOKAL DARI GITHUB
+# 1. LOCAL DATASET EXTRACTION FROM GITHUB
 # ==========================================
 @st.cache_resource
 def extract_local_dataset():
@@ -101,14 +101,14 @@ def extract_local_dataset():
         try:
             with zipfile.ZipFile(zip_target, 'r') as zip_ref:
                 zip_ref.extractall(".")
-            print("Ekstrak file anime.zip lokal berhasil!")
+            print("Local anime.zip extracted successfully!")
         except Exception as e:
-            st.error(f"Gagal mengekstrak file lokal: {e}")
+            st.error(f"Failed to extract local files: {e}")
 
 extract_local_dataset()
 
 # ==========================================
-# 2. MEMUAT DATA & MEMBUAT MODEL (OPTIMAL & HEMAT RAM)
+# 2. DATA LOADING & MODEL GENERATION (RAM OPTIMIZED)
 # ==========================================
 @st.cache_data
 def load_and_process_data():
@@ -121,7 +121,7 @@ def load_and_process_data():
             rec_data.drop_duplicates(subset="name", keep="first", inplace=True)
             rec_data.reset_index(drop=True, inplace=True)
             
-            # Batasi data ke 5.000 terpopuler demi mencegah kehabisan memori RAM di cloud
+            # Restrict dataset to top 5,000 most popular titles to prevent RAM crash on Streamlit Cloud
             if len(rec_data) > 5000:
                 rec_data = rec_data.sort_values(by='members', ascending=False).head(5000)
                 rec_data.reset_index(drop=True, inplace=True)
@@ -139,16 +139,16 @@ def load_and_process_data():
             
             return rec_data, sig, rec_indices
         else:
-            st.error("File anime.csv tidak ditemukan setelah ekstraksi!")
+            st.error("anime.csv file not found after extraction!")
             return pd.DataFrame(), None, None
     except Exception as e:
-        st.error(f"Gagal memproses data: {e}")
+        st.error(f"Failed to process data: {e}")
         return pd.DataFrame(), None, None
 
 rec_data, sig, rec_indices = load_and_process_data()
 
 # ==========================================
-# 3. TAMPILAN SIDEBAR (NAVIGATION)
+# 3. SIDEBAR LAYOUT (NAVIGATION)
 # ==========================================
 with st.sidebar:
     st.title("⛩️ Anime Recommendation")
@@ -159,112 +159,112 @@ with st.sidebar:
         options=["Home", "EDA", "Description Page", "Data Preprocessing", "Train Model", "Result / Prediction Demo", "Feature Importance", "About Us"],
         label_visibility="collapsed"
     )
-    st.write("---")
-    st.markdown("**MyAnimeList Dataset**\n\n*Anime Recommendation Engine*\n\n---\nBuilt with ❤️ using Streamlit")
+    st.sidebar.write("---")
+    st.sidebar.markdown("**MyAnimeList Dataset**\n\n*Anime Recommendation Engine*\n\n---\nBuilt with ❤️ using Streamlit")
 
 # ==========================================
-# 4. LOGIKA KONTEN HALAMAN UTAMA
+# 4. MAIN PAGE CONTENT LOGIC
 # ==========================================
 
-# --- HALAMAN HOME ---
+# --- HOME PAGE ---
 if menu == "Home":
     st.title("🏠 Home")
     st.markdown("""
-    ### Selamat datang di aplikasi **Anime Recommendation System**! 👋
+    ### Welcome to the **Anime Recommendation System** app! 👋
     
-    Sistem rekomendasi ini dirancang interaktif untuk membantu para penggemar menemukan tontonan baru yang relevan secara instan tanpa harus kebingungan memilih di antara ribuan judul.
+    This recommendation system is designed interactively to help anime fans instantly find relevant new series or movies without getting lost in thousands of available options.
     """)
     
     st.success("""
-    💡 **Deskripsi Singkat Proyek:**
+    💡 **Short Project Summary:**
     
-    Aplikasi ini menerapkan pilar *Unsupervised Learning* melalui metode **Content-Based Filtering**. Dengan mengekstrak karakteristik teks fitur dari komponen `genre`, model secara cerdas mengukur kedekatan antar-anime menggunakan pendekatan **TF-IDF Vectorizer** dan **Sigmoid Kernel Similarity**. 
+    This application utilizes *Unsupervised Learning* principles through a **Content-Based Filtering** algorithm. By extracting text features from the `genre` metadata, the model measures structural similarities between anime using a combined **TF-IDF Vectorizer** and **Sigmoid Kernel Similarity Matrix** approach.
     
-    Hasil akhirnya adalah mesin pencari cerdas yang mampu merekomendasikan daftar anime masa depan yang paling mendekati preferensi dan kemiripan corak cerita dari anime yang kamu sukai.
+    The final result is a smart engine capable of recommending future anime titles that align perfectly with the genre patterns and narrative styles of your favorite shows.
     """)
     
     st.write("---")
     st.markdown("""
-    #### 🚀 Cara Menjelajahi Aplikasi:
-    Silakan gunakan menu **Navigation** di sidebar sebelah kiri untuk mengakses seluruh rangkaian eksperimen data kami:
-    1. **EDA:** Melihat visualisasi dan pola penyebaran data mentah.
-    2. **Description Page & Preprocessing:** Memahami struktur data awal dan proses pembersihannya.
-    3. **Train Model & Feature Importance:** Mengintip konfigurasi model dan bobot genre terpenting.
-    4. **Result / Prediction Demo:** Mencoba langsung mesin rekomendasi anime secara *live*!
-    5. **About Us:** Informasi profil lengkap tim **Group 6 (Binus University)**.
+    #### 🚀 Explore the Application:
+    Use the **Navigation** menu on the left sidebar to access our complete data experiments:
+    1. **EDA:** View visual distributions and insights from the raw catalog dataset.
+    2. **Description Page & Preprocessing:** Understand the core data structures and cleaning operations.
+    3. **Train Model & Feature Importance:** Check model parameters and top genre weights.
+    4. **Result / Prediction Demo:** Test the live recommendation search engine!
+    5. **About Us:** Complete team profile for **Group 6 (Binus University)**.
     """)
 
-# --- HALAMAN EDA ---
+# --- EDA PAGE ---
 elif menu == "EDA":
     st.title("📊 Exploratory Data Analysis")
-    st.write("Jelajahi karakteristik data dari katalog anime secara interaktif.")
+    st.write("Explore the underlying traits and distributions of the anime catalog interactively.")
     
     if rec_data.empty:
-        st.warning("Data anime belum dimuat. Silakan periksa file dataset kamu.")
+        st.warning("Anime dataset is empty. Please verify your data source file.")
     else:
-        tab1, tab2, tab3, tab4 = st.tabs(["🔢 Statistik Deskriptif", "📈 Distribusi Fitur", "🔥 Korelasi & Hubungan", "🎭 Wawasan Genre"])
+        tab1, tab2, tab3, tab4 = st.tabs(["🔢 Descriptive Stats", "📈 Feature Distributions", "🔥 Correlations & Relations", "🎭 Genre Insights"])
         
         with tab1:
-            st.subheader("1. Ringkasan Statistik Data")
-            st.write("Berikut adalah gambaran umum angka mentah dari dataset anime yang telah difilter:")
+            st.subheader("1. Data Summary Statistics")
+            st.write("Overview of numerical measurements from the filtered dataset:")
             st.dataframe(rec_data.describe(), use_container_width=True)
             st.write("---")
             col1, col2, col3 = st.columns(3)
             with col1:
-                st.metric("Total Anime di Analisis", f"{len(rec_data):,}")
+                st.metric("Total Analysed Anime", f"{len(rec_data):,}")
             with col2:
-                st.metric("Rata-rata Rating Global", f"{rec_data['rating'].mean():.2f} / 10")
+                st.metric("Average Global Rating", f"{rec_data['rating'].mean():.2f} / 10")
             with col3:
-                st.metric("Total Komunitas Terbesar", f"{rec_data['members'].max():,}")
+                st.metric("Peak Community Members", f"{rec_data['members'].max():,}")
 
         with tab2:
-            st.subheader("2. Generator Distribusi Data")
-            feature_choice = st.selectbox("Pilih fitur yang ingin dilihat distribusinya:", ["rating", "members"])
-            bins_choice = st.slider("Jumlah Bins (Batang Histogram):", min_value=5, max_value=50, value=20)
+            st.subheader("2. Feature Distribution Generator")
+            feature_choice = st.selectbox("Select a feature to plot its distribution:", ["rating", "members"])
+            bins_choice = st.slider("Number of Bins (Histogram Bars):", min_value=5, max_value=50, value=20)
             
             import matplotlib.pyplot as plt
             import seaborn as sns
             
             fig, ax = plt.subplots(figsize=(8, 4))
             sns.histplot(rec_data[feature_choice], bins=bins_choice, kde=True, ax=ax, color="#FF4B4B")
-            ax.set_title(f"Grafik Distribusi Fitur: {feature_choice.capitalize()}")
+            ax.set_title(f"Distribution Chart: {feature_choice.capitalize()}")
             ax.set_xlabel(feature_choice.capitalize())
-            ax.set_ylabel("Jumlah Anime")
+            ax.set_ylabel("Anime Count")
             st.pyplot(fig)
             
             st.write("---")
-            st.write(f"**Boxplot Fitur: {feature_choice.capitalize()} (Deteksi Outliers)**")
+            st.write(f"**Boxplot of {feature_choice.capitalize()} (Outlier Detection)**")
             fig_box, ax_box = plt.subplots(figsize=(8, 2))
             sns.boxplot(x=rec_data[feature_choice], ax=ax_box, color="#4682B4")
             st.pyplot(fig_box)
 
         with tab3:
-            st.subheader("3. Analisis Hubungan Antar Fitur")
-            st.write("Apakah anime yang populer (banyak members) otomatis memiliki rating yang tinggi?")
+            st.subheader("3. Inter-Feature Analysis")
+            st.write("Does a highly popular anime (large member base) automatically guarantee a top-tier rating?")
             
             fig_scatter, ax_scatter = plt.subplots(figsize=(8, 5))
             sns.scatterplot(data=rec_data, x="members", y="rating", alpha=0.5, color="#1f77b4", ax=ax_scatter)
-            ax_scatter.set_title("Scatter Plot: Popularitas (Members) vs Kualitas (Rating)")
-            ax_scatter.set_xlabel("Jumlah Members")
-            ax_scatter.set_ylabel("Rating Global")
+            ax_scatter.set_title("Scatter Plot: Popularity (Members) vs Quality (Rating)")
+            ax_scatter.set_xlabel("Community Member Count")
+            ax_scatter.set_ylabel("Global Score")
             st.pyplot(fig_scatter)
-            st.info("💡 **Insight:** Jika grafik condong berkumpul di bagian kanan atas, artinya terdapat korelasi positif di mana anime populer cenderung mempertahankan rating yang baik karena besarnya basis penggemar.")
+            st.info("💡 **Insight:** Strong clustering towards the top-right quadrant demonstrates a positive correlation: mass-market appeal frequently sustains high scoring due to large fanbase backing.")
 
         with tab4:
-            st.subheader("4. Sebaran Tipe Tayangan Anime")
-            st.write("Distribusi tipe penayangan anime di dalam dataset:")
+            st.subheader("4. Anime Format Distribution")
+            st.write("Breakdown of presentation formats across the catalog data:")
             if 'type' in rec_data.columns:
                 type_counts = rec_data['type'].value_counts()
                 fig_bar, ax_bar = plt.subplots(figsize=(8, 4))
                 sns.barplot(x=type_counts.index, y=type_counts.values, palette="viridis", ax=ax_bar)
-                ax_bar.set_title("Jumlah Anime Berdasarkan Tipe Tayangan")
-                ax_bar.set_xlabel("Tipe")
-                ax_bar.set_ylabel("Jumlah")
+                ax_bar.set_title("Anime Count by Media Type Format")
+                ax_bar.set_xlabel("Media Type")
+                ax_bar.set_ylabel("Count")
                 st.pyplot(fig_bar)
             else:
-                st.write("Fitur 'type' tidak ditemukan dalam data.")
+                st.write("Feature variable 'type' is missing from the active dataset.")
 
-# --- HALAMAN DESCRIPTION PAGE ---
+# --- DESCRIPTION PAGE ---
 elif menu == "Description Page":
     st.title("📝 Dataset Description")
     st.markdown("""
@@ -272,36 +272,36 @@ elif menu == "Description Page":
     - **Source:** MyAnimeList (via Kaggle)
     - **Dataset Name:** [Anime Recommendations Database](https://www.kaggle.com/datasets/CooperUnion/anime-recommendations-database)
     - **Creators:** CooperUnion
-    - **Scope:** Data preferensi dari 73.516 user untuk 12.294 anime.
+    - **Scope:** Preferences and ratings data from 73,516 users on 12,294 unique anime titles.
     """)
     
     st.subheader("📋 Feature Dictionary")
-    st.write("Dataset ini terdiri dari dua file utama dengan detail kolom sebagai berikut:")
+    st.write("The dataset structure consists of two core relational files with columns described below:")
     
-    with st.expander("📂 1. Keterangan Kolom anime.csv (Informasi Katalog)"):
+    with st.expander("📂 1. Column Metadata for anime.csv (Catalog Information)"):
         st.markdown("""
         <div style="background-color: #FFF0F0; padding: 20px; border-radius: 8px; border: 1px solid #FFB7B2; margin-top: 10px;">
             <ul style="color: #5C4033; margin-bottom: 0;">
-                <li><b>anime_id:</b> ID unik dari myanimelist.net untuk mengidentifikasi setiap judul anime.</li>
-                <li><b>name:</b> Nama lengkap atau judul resmi dari anime.</li>
-                <li><b>genre:</b> Daftar genre yang melekat pada anime tersebut (dipisahkan oleh koma).</li>
-                <li><b>type:</b> Format penayangan anime (contoh: TV, Movie, OVA, Special).</li>
-                <li><b>episodes:</b> Jumlah total episode tayangan (bernilai 1 jika bertipe Movie).</li>
-                <li><b>rating:</b> Rata-rata nilai rating global (skala 1-10) yang dihitung secara agregat.</li>
-                <li><b>members:</b> Jumlah total anggota komunitas yang memasukkan anime ini ke dalam daftar mereka (indikator popularitas).</li>
+                <li><b>anime_id:</b> Unique numerical ID from myanimelist.net assigned to identify each anime title.</li>
+                <li><b>name:</b> Official full name or broadcast title of the anime.</li>
+                <li><b>genre:</b> Comma-separated listing of thematic category tags belonging to the title.</li>
+                <li><b>type:</b> Release broadcast format of the anime (e.g., TV, Movie, OVA, Special).</li>
+                <li><b>episodes:</b> Total count of episodes produced (defaults to 1 for theatrical Movies).</li>
+                <li><b>rating:</b> Overall global average user review score computed out of 10 points.</li>
+                <li><b>members:</b> Aggregate count of community user accounts that have added this item to their library lists (popularity proxy).</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
         
-    with st.expander("📂 2. Keterangan Kolom rating.csv (Preferensi User)"):
+    with st.expander("📂 2. Column Metadata for rating.csv (User Preferences)"):
         st.markdown("""
         <div style="background-color: #FFF0F0; padding: 20px; border-radius: 8px; border: 1px solid #FFB7B2; margin-top: 10px;">
             <ul style="color: #5C4033; margin-bottom: 0;">
-                <li><b>user_id:</b> ID acak terenkripsi untuk mengidentifikasi user unik secara anonim.</li>
-                <li><b>anime_id:</b> ID anime yang telah berinteraksi dengan user tersebut.</li>
-                <li><b>rating:</b> Nilai rating (skala 1-10) yang diberikan oleh user.</li>
+                <li><b>user_id:</b> Randomly generated, anonymized string used to identify a single unique reviewer.</li>
+                <li><b>anime_id:</b> Relational reference matching the specific anime rated by the user.</li>
+                <li><b>rating:</b> Explicit review score (1-10 scale) assigned by the individual user.</li>
                 <li style="list-style-type: none; margin-top: 10px; font-style: italic; color: #800020;">
-                    ⚠️ <b>Catatan:</b> Nilai -1 menandakan user tersebut telah menonton anime-nya namun tidak memberikan nilai rating numerik.
+                    ⚠️ <b>Special Value Note:</b> A value of -1 indicates that the user logged the title as watched but chose not to input an explicit numerical score.
                 </li>
             </ul>
         </div>
@@ -312,15 +312,15 @@ elif menu == "Description Page":
     if not rec_data.empty:
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("Total Baris Data (Katalog)", f"{rec_data.shape[0]:,}")
+            st.metric("Total Rows Matrix (Catalog)", f"{rec_data.shape[0]:,}")
         with col2:
-            st.metric("Total Fitur/Kolom", f"{rec_data.shape[1]}")
+            st.metric("Total Structural Features", f"{rec_data.shape[1]}")
         with col3:
-            st.metric("Missing Values Terdeteksi", f"{rec_data.isnull().sum().sum()}")
-        st.write("**Pratinjau Data Mentah (Raw Data Preview):**")
+            st.metric("Detected Null / Missing Values", f"{rec_data.isnull().sum().sum()}")
+        st.write("**Processed Data Snapshot (Raw Data Preview):**")
         st.dataframe(rec_data.head(10), use_container_width=True)
     else:
-        st.warning("Data anime belum dimuat. Pratinjau tidak dapat ditampilkan.")
+        st.warning("Data matrices are uninitialized. Snapshot preview unavailable.")
 
     st.write("---")
     st.subheader("⚙️ Recommendation Workflow")
@@ -331,103 +331,103 @@ elif menu == "Description Page":
         "Raw Data (Kaggle)" -> "EDA & Cleaning" -> "TF-IDF / Matrix Processing" -> "Cosine Similarity" -> "Generate Recommendation";
     }
     """)
-    st.caption("Alur pemrosesan data dari pembacaan dataset hingga menghasilkan rekomendasi anime kustom kepada user.")
+    st.caption("Step-by-step pipeline mapping data from initial repository download to deployment-ready cosine similarity calculations.")
 
-# --- HALAMAN DATA PREPROCESSING ---
+# --- DATA PREPROCESSING PAGE ---
 elif menu == "Data Preprocessing":
     st.title("⚙️ Data Preprocessing Pipeline")
-    st.write("Tahapan pembersihan data dan transformasi fitur sebelum dimasukkan ke dalam model TF-IDF.")
+    st.write("Data pipeline cleaning stages executed before features can be fed into the TF-IDF Vectorizer model.")
     
     if rec_data.empty:
-        st.warning("Data anime tidak tersedia untuk diproses.")
+        st.warning("Active tables unavailable for preprocessing analysis.")
     else:
         tab_clean1, tab_clean2 = st.tabs(["🧹 Data Cleaning", "🚀 Feature Engineering (Text)"])
         with tab_clean1:
-            st.subheader("1. Pembersihan Data Mentah (Data Cleaning)")
+            st.subheader("1. General Cleaning & Null Handling")
             st.markdown("""
-            * **Penanganan Missing Values:** Menghapus baris data anime yang tidak memiliki informasi nama (`name`).
-            * **Pembersihan Data Duplikat:** Menghapus baris duplikat berdasarkan judul anime dan hanya mempertahankan baris pertama (`keep='first'`).
+            * **Missing Values Drop:** Drop rows missing critical title identifiers (`name`) to protect lookup joins.
+            * **Deduplication:** Scan for duplicate title logs and drop overlapping records, retaining only initial entries (`keep='first'`).
             """)
-            st.info("⚡ **Strategi Optimasi Memori (Anti-Crash):**\n\n"
-                    "Streamlit Cloud membatasi penggunaan RAM maksimal 1 GB. Karena komputasi matriks kesamaan "
-                    "(*Sigmoid Kernel*) membutuhkan memori besar, dataset disaring secara otomatis dengan hanya mengambil "
-                    "**5.000 anime terpopuler** berdasarkan jumlah komunitas (`members`).")
+            st.info("⚡ **Memory Scaling Allocation Strategy (Anti-Crash Safeguard):**\n\n"
+                    "Streamlit Cloud infrastructure limits system memory consumption to 1 GB RAM. Because multi-dimensional "
+                    "array similarity computing (*Sigmoid Kernel*) expands exponentially, the dataset isolates the "
+                    "**top 5,000 most popular titles** (`members`) to maximize processing efficiency without breaking container constraints.")
             col_pre1, col_pre2 = st.columns(2)
             with col_pre1:
-                st.metric("Jumlah Baris Akhir (Terpopuler)", f"{rec_data.shape[0]:,}")
+                st.metric("Final Shape (Row Matrix)", f"{rec_data.shape[0]:,}")
             with col_pre2:
-                st.metric("Nilai Kosong Tersisa (Genre)", f"{rec_data['genre'].isnull().sum()}")
+                st.metric("Unresolved Nulls (Genre Vector)", f"{rec_data['genre'].isnull().sum()}")
                 
         with tab_clean2:
-            st.subheader("2. Penyiapan Fitur Teks untuk TF-IDF")
-            st.write("Sebelum teks genre diubah menjadi angka oleh matriks TF-IDF, dilakukan transformasi bentuk string:")
+            st.subheader("2. Text Fitting & String Tokenization Prep")
+            st.write("Prior to numerical translation, string parameters undergo parsing formatting transformations:")
             st.code("""
-# Mengisi nilai genre yang kosong dengan string kosong
+# Impute empty genre records with uniform blank string indicators
 rec_data["genre"] = rec_data["genre"].fillna("")
 
-# Melakukan split teks genre dan mengubahnya menjadi format string array untuk dibaca TF-IDF
+# Split comma-separated genre attributes into structured string representations for the TF-IDF array
 genres = rec_data["genre"].str.split(", |, |,").astype(str)
             """, language="python")
-            st.write("**Hasil Pemrosesan Fitur Teks (Siap untuk Tokenisasi):**")
+            st.write("**Transformed Text Feature Output (Ready for Bag-of-Words Vectorisation):**")
             preview_df = rec_data[['name', 'genre']].head(5).copy()
             preview_df['Processed Token String'] = preview_df['genre'].str.split(", |, |,").astype(str)
             st.dataframe(preview_df, use_container_width=True)
 
-# --- HALAMAN TRAIN MODEL ---
+# --- TRAIN MODEL PAGE ---
 elif menu == "Train Model":
     st.title("🧠 Model Training & Configuration")
-    st.write("Halaman ini menjelaskan bagaimana model *Content-Based Filtering* mempelajari karakteristik genre anime.")
+    st.write("Technical review explaining how the unsupervised Content-Based Filter analyzes mathematical vector distributions of genre maps.")
     
     if rec_data.empty:
-        st.warning("Data belum siap. Silakan periksa kembali file dataset kamu.")
+        st.warning("Data structures uninitialized. Model cannot verify parameters.")
     else:
-        st.subheader("🛠️ 1. Model Hyperparameters")
-        st.write("Konfigurasi yang digunakan pada algoritma `TfidfVectorizer` untuk mengekstrak fitur genre:")
+        st.subheader("🛠️ 1. Vectorizer Hyperparameters")
+        st.write("Structural parameters defined inside the `TfidfVectorizer` mapping configuration block:")
         col_param1, col_param2 = st.columns(2)
         with col_param1:
             st.markdown("""
-            - **N-Gram Range:** `(1, 3)` *(Membaca kombinasi 1 sampai 3 kata)*
-            - **Stop Words:** `English` *(Mengabaikan kata hubung bawaan)*
+            - **N-Gram Token Range:** `(1, 3)` *(Evaluates sequences containing 1 to 3 combined words)*
+            - **Stop Words Library:** `English` *(Filters out structural vocabulary noise)*
             """)
         with col_param2:
             st.markdown("""
-            - **Max Features:** `3,000` *(Membatasi maksimal 3.000 kosakata unik)*
-            - **Similarity Metric:** `Sigmoid Kernel`
+            - **Max Features Limit:** `3,000` *(Constrains vocabulary dictionary bounds to 3k distinct attributes)*
+            - **Similarity Function:** `Sigmoid Kernel Metric`
             """)
         st.write("---")
-        st.subheader("📐 2. Hasil Komputasi Matriks Kedekatan")
-        st.write("Setelah model 'dilatih', bentuk dimensi data berubah menjadi matriks matematika:")
+        st.subheader("📐 2. Computed Matrix Dimensional Profiles")
+        st.write("Post-execution array alignment dimensions outputted by the vector learning model pipeline:")
         num_anime = rec_data.shape[0]
         col_mat1, col_mat2 = st.columns(2)
         with col_mat1:
-            st.metric("Dimensi Matriks TF-IDF", f"{num_anime} × 3,000")
-            st.caption("Baris mewakili judul anime, kolom mewakili bobot kata genre.")
+            st.metric("TF-IDF Matrix Shape", f"{num_anime} × 3,000")
+            st.caption("Rows represent structural anime records; columns represent computed keyword item weights.")
         with col_mat2:
-            st.metric("Dimensi Kernel Kesamaan (Sigmoid)", f"{num_anime} × {num_anime}")
-            st.caption("Matriks persegi yang menyimpan skor kemiripan antar setiap anime.")
+            st.metric("Sigmoid Similarity Array", f"{num_anime} × {num_anime}")
+            st.caption("Symmetrical cross-product space storing exact pair-wise score distances between every catalog title.")
         st.write("---")
-        st.subheader("💾 3. Status Model Deployment")
+        st.subheader("💾 3. Live Model Deployment Status")
         if sig is not None:
             st.success("✅ **Model Status: Trained & Active**")
-            st.info("💡 **Informasi:** Matriks kesamaan telah berhasil disimpan ke dalam *cache memory* Streamlit. Sistem siap memberikan rekomendasi instan pada menu **Result / Prediction Demo** tanpa perlu melatih ulang data dari awal.")
+            st.info("💡 **System Note:** Symmetrical similarity arrays are persistently mapped within memory cache layers. Real-time recommendation retrieval calculations on the **Result / Prediction Demo** menu execute immediately without recalculating base model weights.")
         else:
-            st.error("❌ **Model Status: Not Trained / Error**")
+            st.error("❌ **Model Status: Not Trained / Error Detected**")
 
-# --- HALAMAN RESULT / PREDICTION DEMO ---
+# --- RESULT / PREDICTION DEMO PAGE ---
 elif menu == "Result / Prediction Demo":
     st.title("🎬 Anime Recommendation System")
-    st.write("Dapatkan rekomendasi anime terbaik berdasarkan kemiripan genre!")
+    st.write("Generate dynamic anime recommendations driven completely by textual genre mapping models!")
     
     if sig is not None and not rec_data.empty:
         list_anime = rec_data['name'].unique()
-        search_query = st.selectbox("Pilih atau ketik nama anime yang kamu sukai:", list_anime)
+        search_query = st.selectbox("Select or search for an anime title you enjoy:", list_anime)
         
         if "selected_genre" not in st.session_state:
             st.session_state.selected_genre = None
         if "current_page" not in st.session_state:
             st.session_state.current_page = 1
             
-        if st.button("🔮 Cari Rekomendasi", use_container_width=True):
+        if st.button("🔮 Generate Recommendations", use_container_width=True):
             st.session_state.current_page = 1
             st.session_state.selected_genre = None
             st.session_state.search_done = True
@@ -443,7 +443,7 @@ elif menu == "Result / Prediction Demo":
             nav_col1, nav_col2, nav_col3 = st.columns([1, 3, 1])
             with nav_col1:
                 if st.session_state.current_page > 1:
-                    if st.button("⬅️ `<`", use_container_width=True):
+                    if st.button("Harap Tunggu ⬅️ `<`", use_container_width=True):
                         st.session_state.current_page -= 1
                         st.session_state.selected_genre = None
                         st.rerun()
@@ -452,12 +452,12 @@ elif menu == "Result / Prediction Demo":
             with nav_col2:
                 current_start = ((st.session_state.current_page - 1) * 10) + 1
                 current_end = st.session_state.current_page * 10
-                st.markdown(f"<h5 style='text-align: center; margin-top: 5px;'>Halaman {st.session_state.current_page} (Peringkat {current_start} - {current_end})</h5>", unsafe_allow_html=True)
+                st.markdown(f"<h5 style='text-align: center; margin-top: 5px;'>Page {st.session_state.current_page} (Rankings {current_start} - {current_end})</h5>", unsafe_allow_html=True)
             with nav_col3:
                 max_pilihan_anime = len(sig_score) - 1
                 max_halaman = min(5, max_pilihan_anime // 10)
                 if st.session_state.current_page < max_halaman:
-                    if st.button("`>` ➡️", use_container_width=True):
+                    if st.button("`>` ➡️ Selanjutnya", use_container_width=True):
                         st.session_state.current_page += 1
                         st.session_state.selected_genre = None
                         st.rerun()
@@ -472,57 +472,56 @@ elif menu == "Result / Prediction Demo":
             
             rec_dic = {
                 "No": nomor_urut,
-                "Judul Anime": rec_data["name"].iloc[anime_indices].values,
+                "Anime Title": rec_data["name"].iloc[anime_indices].values,
                 "Genre": rec_data["genre"].iloc[anime_indices].values,
                 "Rating": rec_data["rating"].iloc[anime_indices].values
             }
             st.session_state.df_result = pd.DataFrame(data=rec_dic).set_index("No")
-            st.success(f"Menampilkan 10 rekomendasi anime sejenis untuk **{active_anime}**:")
+            st.success(f"Displaying top 10 calculated matches for: **{active_anime}**")
             st.dataframe(st.session_state.df_result, use_container_width=True,
                          column_config={
-                             "Judul Anime": st.column_config.TextColumn("Judul Anime", width="large"),
+                             "Anime Title": st.column_config.TextColumn("Anime Title", width="large"),
                              "Genre": st.column_config.TextColumn("Genre", width="large"),
                              "Rating": st.column_config.NumberColumn("Rating", width="small")
                          })
             
             st.write("---")
-            st.subheader("🔍 Pt. 2: Eksplorasi Genre Lebih Lanjut")
-            st.write("Klik salah satu genre di bawah ini untuk melihat anime sejenis dari daftar di atas:")
+            st.subheader("🔍 Pt. 2: Deeper Genre Discovery")
+            st.write("Isolate and explore matching titles by filtering specifically for an extracted keyword below:")
             all_genres = set()
             for g_str in st.session_state.df_result["Genre"]:
                 genres_list = [g.strip() for g in g_str.split(",")]
                 all_genres.update(genres_list)
             sorted_genres = sorted(list(all_genres))
-            genre_click = st.pills("Pilih Genre:", sorted_genres, selection_mode="single")
+            genre_click = st.pills("Filter by Theme tag:", sorted_genres, selection_mode="single")
             
             if genre_click:
                 st.session_state.selected_genre = genre_click
                 filtered_anime = rec_data[rec_data['genre'].str.contains(genre_click, case=False, na=False)]
-                st.write(f"### 📋 Daftar Anime dengan Genre: **{genre_click}**")
+                st.write(f"### 📋 Catalog Profiles Containing Theme: **{genre_click}**")
                 filter_display = filtered_anime[['name', 'genre', 'rating']].copy()
-                filter_display.columns = ['Judul Anime', 'Genre', 'Rating']
+                filter_display.columns = ['Anime Title', 'Genre', 'Rating']
                 filter_display.insert(0, 'No', range(1, len(filter_display) + 1))
                 filter_display.set_index('No', inplace=True)
                 st.dataframe(filter_display.head(15), use_container_width=True,
                              column_config={
-                                 "Judul Anime": st.column_config.TextColumn("Judul Anime", width="large"),
+                                 "Anime Title": st.column_config.TextColumn("Anime Title", width="large"),
                                  "Genre": st.column_config.TextColumn("Genre", width="large"),
                                  "Rating": st.column_config.NumberColumn("Rating", width="small")
                              })
     else:
-        st.info("Sedang memuat data, silakan tunggu sebentar...")
+        st.info("Constructing analytical model dependencies, standby...")
 
-# --- HALAMAN FEATURE IMPORTANCE ---
+# --- FEATURE IMPORTANCE PAGE ---
 elif menu == "Feature Importance":
     st.title("📊 Feature Importance Analysis")
-    st.write("Menampilkan bobot fitur kata (N-Gram) dari genre yang paling memengaruhi model rekomendasi.")
+    st.write("Inspect structural vocabulary weight scores (N-Grams) indicating which descriptive themes carry maximum influence within the model system.")
     
     if rec_data.empty:
-        st.warning("Data anime tidak tersedia untuk dianalisis.")
+        st.warning("Missing required token dependencies to perform evaluation.")
     else:
-        st.subheader("🧐 Bagaimana Model Menilai Sebuah Genre?")
-        st.write("Model menggunakan metode **TF-IDF**. Semakin tinggi nilai skor sebuah kata/genre, "
-                 "artinya kata tersebut sifatnya unik dan menjadi pembeda kuat antar-anime di dalam sistem.")
+        st.subheader("🧐 How Does the Vector Model Grade Token Importance?")
+        st.write("Utilizing standard **TF-IDF Matrix Weights**: words receiving maximum evaluation metrics scores are highly specific, acting as distinct profile grouping separators across catalog similarities.")
         try:
             import matplotlib.pyplot as plt
             import seaborn as sns
@@ -536,23 +535,23 @@ elif menu == "Feature Importance":
             idfs = tfv_viz.idf_
             
             importance_df = pd.DataFrame({'Genre Feature': feature_names, 'Importance Score (IDF)': idfs}).sort_values(by='Importance Score (IDF)', ascending=False)
-            num_features = st.slider("Pilih jumlah fitur terpenting yang ingin ditampilkan:", min_value=10, max_value=40, value=15)
+            num_features = st.slider("Select maximum features count to evaluate:", min_value=10, max_value=40, value=15)
             top_features = importance_df.head(num_features)
             
-            st.write(f"### 🔝 Top {num_features} Fitur Genre Paling Berpengaruh")
+            st.write(f"### 🔝 Top {num_features} High-Impact Structural N-Grams")
             fig_importance, ax_importance = plt.subplots(figsize=(10, 6))
             sns.barplot(data=top_features, x='Importance Score (IDF)', y='Genre Feature', palette='flare', ax=ax_importance)
-            ax_importance.set_title(f"Top {num_features} Feature Importance Berdasarkan Skor IDF", fontsize=14)
-            ax_importance.set_xlabel("Skor Kepentingan (Semakin Tinggi = Semakin Unik/Spesifik)", fontsize=11)
-            ax_importance.set_ylabel("Fitur Teks / N-Gram Genre", fontsize=11)
+            ax_importance.set_title(f"Top {num_features} Feature Weights via Evaluated Inverse Document Frequency (IDF) Scores", fontsize=14)
+            ax_importance.set_xlabel("Significance Weight Metrics (Higher Weight = High Specificity Profile Purity Marker)", fontsize=11)
+            ax_importance.set_ylabel("Extracted Vocabulary Token N-Grams", fontsize=11)
             st.pyplot(fig_importance)
             
-            with st.expander("📄 Lihat Seluruh Daftar Tabel Bobot Fitur"):
+            with st.expander("📄 Review Full Token Dictionary Weight Array Sheet"):
                 st.dataframe(importance_df.reset_index(drop=True), use_container_width=True)
         except Exception as e:
-            st.error(f"Gagal memproses visualisasi Feature Importance: {e}")
+            st.error(f"Failed to compile feature importance charts visualization: {e}")
 
-# --- HALAMAN ABOUT US ---
+# --- ABOUT US PAGE ---
 elif menu == "About Us":
     st.title("👥 About Us")
     
@@ -592,7 +591,7 @@ elif menu == "About Us":
         """, unsafe_allow_html=True)
         
     st.write("---")
-    st.subheader("🏛️ University & Course Detail")
+    st.subheader("🏛 *University & Course Detail*")
     info_univ = {
         "Detail": ["University", "Program", "Batch", "Course", "Assignment", "Semester"],
         "Information": ["Binus University", "Computer Science", "Binusian 2028", "Machine Learning", "Group Project — Recommendation System", "Even Semester 2025/2026"]

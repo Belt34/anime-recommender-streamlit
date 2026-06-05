@@ -29,7 +29,7 @@ st.markdown("""
         
         /* 3. Mengubah warna sub-judul/deskripsi langsung di bawah judul menjadi Hijau Matcha */
         h1 + p, .stMarkdown p:first-of-type {
-            color: #A8E6CF !important;
+            color: #D0F0C0 !important;
             font-size: 1.1rem;
         }
         

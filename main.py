@@ -271,8 +271,56 @@ elif menu == "Description Page":
     
     st.caption("Alur pemrosesan data dari pembacaan dataset hingga menghasilkan rekomendasi anime kustom kepada user.")
 elif menu == "Data Preprocessing":
-    st.title("⚙️ Data Preprocessing")
-    st.write("Proses pembersihan data, penanganan nilai kosong, dan penyiapan teks fitur.")
+    st.title("⚙️ Data Preprocessing Pipeline")
+    st.write("Tahapan pembersihan data dan transformasi fitur sebelum dimasukkan ke dalam model TF-IDF.")
+
+    if rec_data.empty:
+        st.warning("Data anime tidak tersedia untuk diproses.")
+    else:
+        # Membuat Tab seperti halaman sebelumnya agar rapi
+        tab_clean1, tab_clean2 = st.tabs(["🧹 Data Cleaning", "🚀 Feature Engineering (Text)"])
+
+        with tab_clean1:
+            st.subheader("1. Pembersihan Data Mentah (Data Cleaning)")
+            
+            # Info 1: Drop Missing Values & Duplicates
+            st.markdown("""
+            * **Penanganan Missing Values:** Menghapus baris data anime yang tidak memiliki informasi nama (`name`).
+            * **Pembersihan Data Duplikat:** Menghapus baris duplikat berdasarkan judul anime dan hanya mempertahankan baris pertama (`keep='first'`).
+            """)
+            
+            # Info 2: Optimasi Memori & Pembatasan Data (Crucial Insight)
+            st.info("⚡ **Strategi Optimasi Memori (Anti-Crash):**\n\n"
+                    "Streamlit Cloud membatasi penggunaan RAM maksimal 1 GB. Karena komputasi matriks kesamaan "
+                    "(*Sigmoid Kernel*) membutuhkan memori besar, dataset disaring secara otomatis dengan hanya mengambil "
+                    "**5.000 anime terpopuler** berdasarkan jumlah komunitas (`members`).")
+            
+            # Tampilkan statistik sederhana data setelah preprocessing
+            col_pre1, col_pre2 = st.columns(2)
+            with col_pre1:
+                st.metric("Jumlah Baris Akhir (Terpopuler)", f"{rec_data.shape[0]:,}")
+            with col_pre2:
+                st.metric("Nilai Kosong Tersisa (Genre)", f"{rec_data['genre'].isnull().sum()}")
+
+        with tab_clean2:
+            st.subheader("2. Penyiapan Fitur Teks untuk TF-IDF")
+            st.write("Sebelum teks genre diubah menjadi angka oleh matriks TF-IDF, dilakukan transformasi bentuk string:")
+            
+            # Tampilkan kode pemrosesan teks yang kamu gunakan di fungsi load data
+            st.code("""
+# Mengisi nilai genre yang kosong dengan string kosong
+rec_data["genre"] = rec_data["genre"].fillna("")
+
+# Melakukan split teks genre dan mengubahnya menjadi format string array untuk dibaca TF-IDF
+genres = rec_data["genre"].str.split(", |, |,").astype(str)
+            """, language="python")
+            
+            st.write("**Hasil Pemrosesan Fitur Teks (Siap untuk Tokenisasi):**")
+            
+            # Membuat contoh preview teks genre yang sudah siap di-vektorisasi
+            preview_df = rec_data[['name', 'genre']].head(5).copy()
+            preview_df['Processed Token String'] = preview_df['genre'].str.split(", |, |,").astype(str)
+            st.dataframe(preview_df, use_container_width=True)
 
 elif menu == "Train Model":
     st.title("🧠 Train Model")

@@ -23,7 +23,7 @@ st.markdown("""
         
         /* 2. Mengubah warna judul utama (H1) menjadi Pink Sakura */
         h1 {
-            color: ##debc8c !important;
+            color: #DEBC8C !important;
             font-weight: 700;
         }
         
@@ -59,28 +59,33 @@ st.markdown("""
         
         /* Mengubah warna teks di dalam st.pills (tombol pilihan hitam) menjadi putih */
         div[data-testid="stPills"] button p {
-            color: ##debc8c !important;
+            color: #FFFFFF !important;
         }
 
         /* 7. KUSTOMISASI TABEL: Warna Merah Gelap / Isian Pasta Kacang (Anko) */
         .stTable table {
-            color: #6F4E37 !important; /* Teks tabel coklat gelap agar senada */
+            color: #FFFFFF !important; /* MENGUBAH TEKS ISI TABEL MENJADI PUTIH BERSIH */
             border: 2px solid #800020 !important; /* Garis luar merah gelap/maroon */
         }
         
         .stTable th {
             background-color: #800020 !important; /* Latar belakang header menjadi merah gelap */
-            color: ##debc8c !important; /* Teks header menjadi putih agar kontras */
+            color: #FFFFFF !important; /* Teks header menjadi putih agar kontras */
             font-weight: bold;
         }
         
         .stTable td {
             border-bottom: 1px solid #E0B0FF !important; /* Garis pembatas baris pink tipis */
+            color: #FFFFFF !important; /* Memastikan teks di dalam cell td berwarna putih */
         }
         
-        /* Mengubah warna teks di dalam st.dataframe */
+        /* Mengubah warna teks di dalam komponen dataframe/tabel interaktif agar ikut menjadi putih */
         div[data-testid="stDataFrame"] {
             border: 2px solid #800020 !important;
+        }
+        
+        div[data-testid="stDataFrame"] div {
+            color: #FFFFFF !important;
         }
     </style>
 """, unsafe_allow_html=True)

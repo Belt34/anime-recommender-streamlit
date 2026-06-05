@@ -18,12 +18,12 @@ st.markdown("""
     <style>
         /* 1. Mengubah latar belakang utama menjadi Putih Mochi */
         .stApp {
-            background-color: #FFFFFF;
+            background-color: #FFB7B2;
         }
         
         /* 2. Mengubah warna judul utama (H1) menjadi Pink Sakura */
         h1 {
-            color: #FFB7B2 !important;
+            color: #FFFFFF !important;
             font-weight: 700;
         }
         

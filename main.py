@@ -120,8 +120,91 @@ if menu == "Home":
 
 elif menu == "EDA":
     st.title("📊 Exploratory Data Analysis")
-    st.write("Halaman ini nantinya bisa kamu gunakan untuk menampilkan grafik visualisasi data anime.")
+    st.write("Jelajahi karakteristik data dari katalog anime secara interaktif.")
+    
+    if rec_data.empty:
+        st.warning("Data anime belum dimuat. Silakan periksa file dataset kamu.")
+    else:
+        # Buat sub-menu tab di dalam halaman EDA agar rapi seperti aplikasi energi
+        tab1, tab2, tab3, tab4 = st.tabs([
+            "🔢 Statistik Deskriptif", 
+            "📈 Distribusi Fitur", 
+            "🔥 Korelasi & Hubungan", 
+            "🎭 Wawasan Genre"
+        ])
+        
+        # --- TAB 1: STATISTIK DESKRIPTIF ---
+        with tab1:
+            st.subheader("1. Ringkasan Statistik Data")
+            st.write("Berikut adalah gambaran umum angka mentah dari dataset anime yang telah difilter:")
+            st.dataframe(rec_data.describe(), use_container_width=True)
+            
+            # Ringkasan Cepat (Insights Card)
+            st.write("---")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Total Anime di Analisis", f"{len(rec_data):,}")
+            with col2:
+                st.metric("Rata-rata Rating Global", f"{rec_data['rating'].mean():.2f} / 10")
+            with col3:
+                st.metric("Total Komunitas Terbesar", f"{rec_data['members'].max():,}")
 
+        # --- TAB 2: DISTRIBUSI FITUR (HISTOGRAM & BOXPLOT) ---
+        with tab2:
+            st.subheader("2. Generator Distribusi Data")
+            feature_choice = st.selectbox("Pilih fitur yang ingin dilihat distribusinya:", ["rating", "members"])
+            bins_choice = st.slider("Jumlah Bins (Batang Histogram):", min_value=5, max_value=50, value=20)
+            
+            import matplotlib.pyplot as plt
+            import seaborn as sns
+            
+            # Plot Histogram & KDE
+            fig, ax = plt.subplots(figsize=(8, 4))
+            sns.histplot(rec_data[feature_choice], bins=bins_choice, kde=True, ax=ax, color="#FF4B4B")
+            ax.set_title(f"Grafik Distribusi Fitur: {feature_choice.capitalize()}")
+            ax.set_xlabel(feature_choice.capitalize())
+            ax.set_ylabel("Jumlah Anime")
+            st.pyplot(fig)
+            
+            # Plot Boxplot untuk melihat Outliers
+            st.write("---")
+            st.write(f"**Boxplot Fitur: {feature_choice.capitalize()} (Deteksi Outliers)**")
+            fig_box, ax_box = plt.subplots(figsize=(8, 2))
+            sns.boxplot(x=rec_data[feature_choice], ax=ax_box, color="#4682B4")
+            st.pyplot(fig_box)
+
+        # --- TAB 3: KORELASI & HUBUNGAN DUA VARIABEL ---
+        with tab3:
+            st.subheader("3. Analisis Hubungan Antar Fitur")
+            st.write("Apakah anime yang populer (banyak members) otomatis memiliki rating yang tinggi?")
+            
+            # Scatter Plot: Members vs Rating
+            fig_scatter, ax_scatter = plt.subplots(figsize=(8, 5))
+            sns.scatterplot(data=rec_data, x="members", y="rating", alpha=0.5, color="#1f77b4", ax=ax_scatter)
+            ax_scatter.set_title("Scatter Plot: Popularitas (Members) vs Kualitas (Rating)")
+            ax_scatter.set_xlabel("Jumlah Members")
+            ax_scatter.set_ylabel("Rating Global")
+            st.pyplot(fig_scatter)
+            
+            st.info("💡 **Insight:** Jika grafik condong berkumpul di bagian kanan atas, artinya terdapat korelasi positif di mana anime populer cenderung mempertahankan rating yang baik karena besarnya basis penggemar.")
+
+        # --- TAB 4: WAWASAN GENRE ---
+        with tab4:
+            st.subheader("4. Sebaran Tipe Tayangan Anime")
+            st.write("Distribusi tipe penayangan anime di dalam dataset:")
+            
+            # Bar Chart untuk variabel kategori 'type'
+            if 'type' in rec_data.columns:
+                type_counts = rec_data['type'].value_counts()
+                
+                fig_bar, ax_bar = plt.subplots(figsize=(8, 4))
+                sns.barplot(x=type_counts.index, y=type_counts.values, palette="viridis", ax=ax_bar)
+                ax_bar.set_title("Jumlah Anime Berdasarkan Tipe Tayangan")
+                ax_bar.set_xlabel("Tipe")
+                ax_bar.set_ylabel("Jumlah")
+                st.pyplot(fig_bar)
+            else:
+                st.write("Fitur 'type' tidak ditemukan dalam data.")
 elif menu == "Description Page":
     st.title("📝 Description Page")
     st.write("Penjelasan detail mengenai proyek, dataset, dan sistem rekomendasi yang dibangun.")

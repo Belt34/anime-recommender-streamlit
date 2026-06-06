@@ -556,7 +556,7 @@ elif menu == "About Us":
     st.title("👥 About Us")
     
     st.markdown("""
-    <div style="background-color: #1E1E1E; padding: 20px; border-radius: 10px; border-left: 5px solid #FFB7B2; margin-bottom: 25px;">
+    <div style="background-color: #FFFFFF; padding: 20px; border-radius: 10px; border-left: 5px solid #FFB7B2; margin-bottom: 25px;">
         <h2 style="margin: 0; color: white;">Group 6</h2>
         <p style="margin: 5px 0 0 0; color: #B0B0B0;">Machine Learning Assignment — Binus University</p>
         <p style="margin: 0; color: #888888; font-size: 0.9em;">Binusian 2028</p>

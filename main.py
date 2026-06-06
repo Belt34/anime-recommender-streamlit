@@ -443,7 +443,7 @@ elif menu == "Result / Prediction Demo":
             nav_col1, nav_col2, nav_col3 = st.columns([1, 3, 1])
             with nav_col1:
                 if st.session_state.current_page > 1:
-                    if st.button("Harap Tunggu ⬅️ `<`", use_container_width=True):
+                    if st.button("Back ⬅️ `<`", use_container_width=True):
                         st.session_state.current_page -= 1
                         st.session_state.selected_genre = None
                         st.rerun()
@@ -457,7 +457,7 @@ elif menu == "Result / Prediction Demo":
                 max_pilihan_anime = len(sig_score) - 1
                 max_halaman = min(5, max_pilihan_anime // 10)
                 if st.session_state.current_page < max_halaman:
-                    if st.button("`>` ➡️ Selanjutnya", use_container_width=True):
+                    if st.button("`>` ➡️ Next", use_container_width=True):
                         st.session_state.current_page += 1
                         st.session_state.selected_genre = None
                         st.rerun()

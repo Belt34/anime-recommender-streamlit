@@ -567,7 +567,7 @@ elif menu == "About Us":
     col_member1, col_member2, col_member3 = st.columns(3)
     with col_member1:
         st.markdown("""
-        <div style="background-color: #262626; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #444;">
+        <div style="background-color: #FFFFFF; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #444;">
             <span style="font-size: 40px;">👨‍💻</span>
             <h4 style="margin: 10px 0 5px 0; color: #FFB7B2 !important;">Jimmy Stephen</h4>
             <p style="color: #A8E6CF; margin: 0; font-weight: bold;">2802461151</p>
@@ -575,7 +575,7 @@ elif menu == "About Us":
         """, unsafe_allow_html=True)
     with col_member2:
         st.markdown("""
-        <div style="background-color: #262626; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #444;">
+        <div style="background-color: #FFFFFF; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #444;">
             <span style="font-size: 40px;">👨‍💻</span>
             <h4 style="margin: 10px 0 5px 0; color: #FFB7B2 !important;">Nicholas Lee</h4>
             <p style="color: #A8E6CF; margin: 0; font-weight: bold;">2802450721</p>
@@ -583,7 +583,7 @@ elif menu == "About Us":
         """, unsafe_allow_html=True)
     with col_member3:
         st.markdown("""
-        <div style="background-color: #262626; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #444;">
+        <div style="background-color: #FFFFFF; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #444;">
             <span style="font-size: 40px;">👨‍💻</span>
             <h4 style="margin: 10px 0 5px 0; color: #FFB7B2 !important;">C. Darryl Witono</h4>
             <p style="color: #A8E6CF; margin: 0; font-weight: bold;">2802465420</p>
